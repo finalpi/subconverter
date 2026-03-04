@@ -1,0 +1,69 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天 UTC 02:00
+  workflow_dispatch:
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: Sync from metacubex/subconverter
+    runs-on: ubuntu-latest
+    outputs:
+      has_new_commits: ${{ steps.check.outputs.has_new_commits }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/metacubex/subconverter.git
+          git fetch upstream master
+
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          LOCAL=$(git rev-parse HEAD)
+          UPSTREAM=$(git rev-parse upstream/master)
+          if [ "$LOCAL" = "$UPSTREAM" ]; then
+            echo "has_new_commits=false" >> $GITHUB_OUTPUT
+            echo "No new commits from upstream."
+          else
+            echo "has_new_commits=true" >> $GITHUB_OUTPUT
+            echo "New commits found: $UPSTREAM"
+          fi
+
+      - name: Merge upstream (our changes win on conflict)
+        if: steps.check.outputs.has_new_commits == 'true'
+        run: |
+          git merge upstream/master -X ours --no-edit
+          git push origin master
+
+  trigger-docker:
+    name: Trigger Docker Build
+    needs: sync
+    if: needs.sync.outputs.has_new_commits == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch docker workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'docker.yml',
+              ref: 'master'
+            })

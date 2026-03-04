@@ -1,9 +1,7 @@
 FROM alpine:3.16 AS builder
-LABEL maintainer="metacubex.official@gmail.com"
 ARG THREADS="4"
 ARG SHA=""
 
-# build minimized
 WORKDIR /
 RUN set -xe && \
     apk add --no-cache --virtual .build-tools git g++ build-base linux-headers cmake python3 && \
@@ -34,19 +32,21 @@ RUN set -xe && \
     cd toml11 && \
     cmake -DCMAKE_CXX_STANDARD=11 . && \
     make install -j $THREADS && \
-    cd .. && \
-    git clone https://github.com/metacubex/subconverter --depth=1 && \
-    cd subconverter && \
-    [ -n "$SHA" ] && sed -i 's/\(v[0-9]\.[0-9]\.[0-9]\)/\1-'"$SHA"'/' src/version.h;\
+    cd ..
+
+# 从本地代码构建，避免直接 clone 上游（保留 fork 中的自定义改动）
+WORKDIR /subconverter
+COPY . .
+RUN set -xe && \
+    [ -n "$SHA" ] && sed -i 's/\(v[0-9]\.[0-9]\.[0-9]\)/\1-'"$SHA"'/' src/version.h; \
     python3 -m ensurepip && \
     python3 -m pip install gitpython && \
     python3 scripts/update_rules.py -c scripts/rules_config.conf && \
     cmake -DCMAKE_BUILD_TYPE=Release . && \
     make -j $THREADS
 
-# build final image
 FROM alpine:3.16
-LABEL maintainer="metacubex.official@gmail.com"
+LABEL maintainer="github-actions"
 
 RUN apk add --no-cache --virtual subconverter-deps pcre2 libcurl yaml-cpp
 
@@ -54,10 +54,8 @@ COPY --from=builder /subconverter/subconverter /usr/bin/
 COPY --from=builder /subconverter/base /base/
 
 ENV TZ=Africa/Abidjan
-RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
-RUN echo $TZ > /etc/timezone
+RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# set entry
 WORKDIR /base
 CMD subconverter
 
