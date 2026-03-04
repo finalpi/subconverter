@@ -151,7 +151,9 @@ void rulesetToClash(YAML::Node &base_rule, std::vector<RulesetContent> &ruleset_
             strLine = retrieved_rules.substr(2);
             if(startsWith(strLine, "FINAL"))
                 strLine.replace(0, 5, "MATCH");
-            if(!startsWith(strLine, "AND") && !startsWith(strLine, "OR") && !startsWith(strLine, "NOT"))
+            if(startsWith(strLine, "AND") || startsWith(strLine, "OR") || startsWith(strLine, "NOT"))
+                strLine += "," + rule_group;
+            else
                 strLine = transformRuleToCommon(temp, strLine, rule_group);
             allRules.emplace_back(strLine);
             total_rules++;
@@ -224,7 +226,9 @@ std::string rulesetToClashStr(YAML::Node &base_rule, std::vector<RulesetContent>
             strLine = retrieved_rules.substr(2);
             if(startsWith(strLine, "FINAL"))
                 strLine.replace(0, 5, "MATCH");
-            if(!startsWith(strLine, "AND") && !startsWith(strLine, "OR") && !startsWith(strLine, "NOT"))
+            if(startsWith(strLine, "AND") || startsWith(strLine, "OR") || startsWith(strLine, "NOT"))
+                strLine += "," + rule_group;
+            else
                 strLine = transformRuleToCommon(temp, strLine, rule_group);
             output_content += "  - " + strLine + "\n";
             total_rules++;
