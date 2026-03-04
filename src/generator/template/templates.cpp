@@ -347,8 +347,11 @@ int renderClashScript(YAML::Node &base_rule, std::vector<RulesetContent> &rulese
             if(startsWith(strLine, "FINAL"))
                 strLine.replace(0, 5, "MATCH");
             strLine += "," + rule_group;
-            if(count_least(strLine, ',', 3))
-                strLine = regReplace(strLine, "^(.*?,.*?)(,.*)(,.*)$", "$1$3$2");
+            if(!startsWith(strLine, "AND,") && !startsWith(strLine, "OR,") && !startsWith(strLine, "NOT,"))
+            {
+                if(count_least(strLine, ',', 3))
+                    strLine = regReplace(strLine, "^(.*?,.*?)(,.*)(,.*)$", "$1$3$2");
+            }
             rules.emplace_back(std::move(strLine));
             continue;
         }
