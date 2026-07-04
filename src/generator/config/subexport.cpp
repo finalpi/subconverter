@@ -279,7 +279,7 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         scv.define(x.AllowInsecure);
 
         singleproxy["name"] = x.Remark;
-        singleproxy["server"] = x.Hostname;
+        singleproxy["server"] = regReplace(x.Hostname, R"(^\[(.*)\]$)", "$1");
         singleproxy["port"] = x.Port;
 
         if (!x.UnderlyingProxy.empty())
