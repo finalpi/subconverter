@@ -605,6 +605,14 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
                 singleproxy["alpn"] = x.Alpn;
             if (!x.Fingerprint.empty())
                 singleproxy["fingerprint"] = x.Fingerprint;
+            if (!x.ClientFingerprint.empty())
+                singleproxy["client-fingerprint"] = x.ClientFingerprint;
+            if (!x.IpVersion.empty())
+                singleproxy["ip-version"] = x.IpVersion;
+            if (!x.Certificate.empty())
+                singleproxy["certificate"] = x.Certificate;
+            if (!x.PrivateKeyPem.empty())
+                singleproxy["private-key"] = x.PrivateKeyPem;
             if (x.IdleSessionCheckInterval != 0)
                 singleproxy["idle-session-check-interval"] = x.IdleSessionCheckInterval;
             if (x.IdleSessionTimeout != 0)

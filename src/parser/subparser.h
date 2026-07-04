@@ -117,11 +117,12 @@ void anytlsConstruct(
         const std::string &port,
         const std::string &password,
         const std::string &sni,
-        const std::string &alpn,
+        const StringArray &alpn,
         const std::string &fingerprint,
         const std::string &idle_session_check_interval,
         const std::string &idle_session_timeout,
         const std::string &min_idle_session,
+        tribool udp,
         tribool tfo,
         tribool scv,
         const std::string &underlying_proxy = ""

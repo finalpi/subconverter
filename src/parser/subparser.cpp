@@ -306,21 +306,20 @@ void anytlsConstruct(
         const std::string &port,
         const std::string &password,
         const std::string &sni,
-        const std::string &alpn,
+        const StringArray &alpn,
         const std::string &fingerprint,
         const std::string &idle_session_check_interval,
         const std::string &idle_session_timeout,
         const std::string &min_idle_session,
+        tribool udp,
         tribool tfo,
         tribool scv,
         const std::string &underlying_proxy
 ) {
-    commonConstruct(node, ProxyType::AnyTLS, group, remarks, server, port, tribool(), tfo, scv, tribool(), underlying_proxy);
+    commonConstruct(node, ProxyType::AnyTLS, group, remarks, server, port, udp, tfo, scv, tribool(), underlying_proxy);
         node.Password = password;
         node.SNI = sni;
-        if (!alpn.empty()) {
-            node.Alpn = StringArray{alpn};
-        }
+        node.Alpn = alpn;
         node.Fingerprint = fingerprint;
         node.IdleSessionCheckInterval = to_int(idle_session_check_interval);
         node.IdleSessionTimeout = to_int(idle_session_timeout);
@@ -1246,6 +1245,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         std::string obfs_password, cwnd; //hysteria2
         std::string uuid, heartbeat_interval, disable_sni, reduce_rtt, request_timeout, udp_relay_mode, congestion_controller, max_udp_relay_packet_size, max_open_streams, fast_open;   //TUIC
         std::string idle_session_check_interval, idle_session_timeout, min_idle_session;
+        StringArray anytls_alpn;
         std::string flow, xtls, short_id;
         // New parameters from mihomo
         std::string ip_version, client_fingerprint, ech_config, certificate, private_key_pem, vless_encryption;
@@ -1270,7 +1270,8 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         if(port.empty() || port == "0")
             continue;
         udp = safe_as<std::string>(singleproxy["udp"]);
-        tfo = safe_as<std::string>(singleproxy["fast-open"]);
+        tfo = safe_as<std::string>(singleproxy["tfo"]);
+        tfo.define(safe_as<std::string>(singleproxy["fast-open"]));
         scv = safe_as<std::string>(singleproxy["skip-cert-verify"]);
 
         // Read common new parameters
@@ -1787,12 +1788,27 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             group = ANYTLS_DEFAULT_GROUP;
             singleproxy["password"] >>= password;
             singleproxy["sni"] >>= sni;
+            anytls_alpn.clear();
             if (singleproxy["alpn"].IsSequence())
-                singleproxy["alpn"][0] >>= alpn;
+            {
+                for (size_t j = 0; j < singleproxy["alpn"].size(); j++)
+                {
+                    singleproxy["alpn"][j] >>= alpn;
+                    if (!alpn.empty())
+                        anytls_alpn.emplace_back(alpn);
+                }
+            }
             else
+            {
                 singleproxy["alpn"] >>= alpn;
+                if (!alpn.empty())
+                    anytls_alpn.emplace_back(alpn);
+            }
             singleproxy["fingerprint"] >>= fingerprint;
-            anytlsConstruct(node, group, ps, server, port, password, sni, alpn, fingerprint, idle_session_check_interval, idle_session_timeout, min_idle_session, tfo, scv, underlying_proxy);
+            singleproxy["idle-session-check-interval"] >>= idle_session_check_interval;
+            singleproxy["idle-session-timeout"] >>= idle_session_timeout;
+            singleproxy["min-idle-session"] >>= min_idle_session;
+            anytlsConstruct(node, group, ps, server, port, password, sni, anytls_alpn, fingerprint, idle_session_check_interval, idle_session_timeout, min_idle_session, udp, tfo, scv, underlying_proxy);
 
             // Assign new parameters to node for AnyTLS
             node.IpVersion = ip_version;
@@ -2073,6 +2089,7 @@ void explodeTUIC(std::string tuic, Proxy &node) {
 
 void explodeStdAnyTLS(std::string anytls, Proxy &node) {
     std::string add, port, password, sni, alpn, fingerprint, remarks, addition,idle_session_check_interval,idle_session_timeout,min_idle_session;
+    StringArray alpn_list;
     tribool tfo, scv;
 
     anytls = anytls.substr(9);  // 去除 anytls://
@@ -2105,6 +2122,8 @@ void explodeStdAnyTLS(std::string anytls, Proxy &node) {
     // 其他参数
     sni = getUrlArg(addition, "peer");
     alpn = getUrlArg(addition, "alpn");
+    if (!alpn.empty())
+        alpn_list.emplace_back(alpn);
     fingerprint = urlDecode(getUrlArg(addition, "hpkp"));
     tfo = tribool(getUrlArg(addition, "tfo"));
     scv = tribool(getUrlArg(addition, "insecure"));
@@ -2112,7 +2131,7 @@ void explodeStdAnyTLS(std::string anytls, Proxy &node) {
     if (remarks.empty())
         remarks = add + ":" + port;
 
-    anytlsConstruct(node, "AnyTLS", remarks, add, port, password, sni, alpn, fingerprint, idle_session_check_interval, idle_session_timeout, min_idle_session,tfo, scv, "");
+    anytlsConstruct(node, "AnyTLS", remarks, add, port, password, sni, alpn_list, fingerprint, idle_session_check_interval, idle_session_timeout, min_idle_session, tribool(), tfo, scv, "");
 }
 
 void explodeAnyTLS(std::string anytls, Proxy &node) {
