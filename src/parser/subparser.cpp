@@ -42,6 +42,24 @@ void commonConstruct(Proxy &node, ProxyType type, const std::string &group, cons
     node.TLS13 = tls13;
 }
 
+void applyUriEchOptions(const std::string &addition, Proxy &node)
+{
+    const std::string ech = urlDecode(getUrlArg(addition, "ech"));
+    if(ech.empty())
+        return;
+
+    node.EchEnable = true;
+    if(!strFind(ech, "://"))
+    {
+        node.EchConfig = ech;
+        return;
+    }
+
+    const string_size separator = ech.find('+');
+    if(separator != std::string::npos && separator > 0)
+        node.EchQueryServerName = ech.substr(0, separator);
+}
+
 void vmessConstruct(Proxy &node, const std::string &group, const std::string &remarks, const std::string &add, const std::string &port, const std::string &type, const std::string &id, const std::string &aid, const std::string &net, const std::string &cipher, const std::string &path, const std::string &host, const std::string &edge, const std::string &tls, const std::string &sni, tribool udp, tribool tfo, tribool scv, tribool tls13, const std::string& underlying_proxy)
 {
     commonConstruct(node, ProxyType::VMess, group, remarks, add, port, udp, tfo, scv, tls13, underlying_proxy);
@@ -1009,7 +1027,7 @@ void explodeHTTPSub(std::string link, Proxy &node)
 
 void explodeTrojan(std::string trojan, Proxy &node)
 {
-    std::string server, port, psk, addition, group, remark, host, path, network;
+    std::string server, port, psk, addition, group, remark, sni, ws_host, path, network;
     tribool tfo, scv;
     trojan.erase(0, 9);
     string_size pos = trojan.rfind('#');
@@ -1031,25 +1049,24 @@ void explodeTrojan(std::string trojan, Proxy &node)
     if(port == "0")
         return;
 
-    host = getUrlArg(addition, "sni");
-    if(host.empty())
-        host = getUrlArg(addition, "peer");
+    sni = urlDecode(getUrlArg(addition, "sni"));
+    if(sni.empty())
+        sni = urlDecode(getUrlArg(addition, "peer"));
+    ws_host = urlDecode(getUrlArg(addition, "host"));
     tfo = getUrlArg(addition, "tfo");
     scv = getUrlArg(addition, "allowInsecure");
     group = urlDecode(getUrlArg(addition, "group"));
 
     if(getUrlArg(addition, "ws") == "1")
     {
-        path = getUrlArg(addition, "wspath");
+        path = urlDecode(getUrlArg(addition, "wspath"));
         network = "ws";
     }
     // support the trojan link format used by v2ryaN and X-ui.
     // format: trojan://{password}@{server}:{port}?type=ws&security=tls&path={path (urlencoded)}&sni={host}#{name}
     else if(getUrlArg(addition, "type") == "ws")
     {
-        path = getUrlArg(addition, "path");
-        if(path.substr(0, 3) == "%2F")
-            path = urlDecode(path);
+        path = urlDecode(getUrlArg(addition, "path"));
         network = "ws";
     }
 
@@ -1058,7 +1075,9 @@ void explodeTrojan(std::string trojan, Proxy &node)
     if(group.empty())
         group = TROJAN_DEFAULT_GROUP;
 
-    trojanConstruct(node, group, remark, server, port, psk, network, host, path, true, tribool(), tfo, scv);
+    trojanConstruct(node, group, remark, server, port, psk, network, ws_host, path, true, tribool(), tfo, scv);
+    node.SNI = sni;
+    applyUriEchOptions(addition, node);
 }
 
 void explodeQuan(const std::string &quan, Proxy &node)
@@ -2174,7 +2193,7 @@ void explodeAnyTLS(std::string anytls, Proxy &node) {
 }
 
 void explodeStdVLESS(std::string vless, Proxy &node) {
-    std::string add, port, uuid, sni, alpn, net, type, mode, host, path, fingerprint, remarks, addition, flow, xtls, public_key, short_id, security, tls;
+    std::string add, port, uuid, sni, alpn, net, type, mode, host, path, fingerprint, client_fingerprint, remarks, addition, flow, xtls, public_key, short_id, security, tls, encryption;
     tribool tfo, scv;
     std::string decoded, userinfo, hostinfo;
     string_array user_parts;
@@ -2232,6 +2251,8 @@ void explodeStdVLESS(std::string vless, Proxy &node) {
         net = getUrlArg(addition,"type");
         alpn = getUrlArg(addition, "alpn");
         fingerprint = getUrlArg(addition, "hpkp");
+        client_fingerprint = urlDecode(getUrlArg(addition, "fp"));
+        encryption = urlDecode(getUrlArg(addition, "encryption"));
         flow = getUrlArg(addition, "flow");
         xtls = getUrlArg(addition, "xtls");
         public_key = getUrlArg(addition, "pbk");
@@ -2249,8 +2270,13 @@ void explodeStdVLESS(std::string vless, Proxy &node) {
             case "ws"_hash:
             case "h2"_hash:
                 type = getUrlArg(addition, "headerType");
-                host = getUrlArg(addition, strFind(addition,"sni") ? "sni" : "host");
+                host = getUrlArg(addition, "host");
                 path = getUrlArg(addition, "path");
+                break;
+            case "xhttp"_hash:
+                host = getUrlArg(addition, "host");
+                path = getUrlArg(addition, "path");
+                mode = getUrlArg(addition, "mode");
                 break;
             case "grpc"_hash:
                 host = getUrlArg(addition, "sni");
@@ -2276,7 +2302,10 @@ void explodeStdVLESS(std::string vless, Proxy &node) {
     if (remarks.empty())
         remarks = add + ":" + port;
     node.TLSSecure = security == "tls" || security == "reality";
-    vlessConstruct(node, VLESS_DEFAULT_GROUP, remarks, add, port, uuid, sni, alpn, type, net, mode, host, path, fingerprint, flow, xtls, public_key, short_id, "", tribool(), tfo, scv, "");
+    vlessConstruct(node, VLESS_DEFAULT_GROUP, remarks, add, port, uuid, sni, alpn, type, net, mode, host, path, fingerprint, flow, xtls, public_key, short_id, client_fingerprint, tribool(), tfo, scv, "");
+    node.VlessEncryption = encryption;
+    node.XHttpMode = mode;
+    applyUriEchOptions(addition, node);
 }
 
 void explodeVLESS(std::string vless, Proxy &node) {
