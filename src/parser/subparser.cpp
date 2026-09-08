@@ -1614,7 +1614,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         case "trojan"_hash:
             group = TROJAN_DEFAULT_GROUP;
             singleproxy["password"] >>= password;
-            singleproxy["sni"] >>= host;
+            singleproxy["sni"] >>= sni;
             singleproxy["network"] >>= net;
             switch(hash_(net))
             {
@@ -1623,6 +1623,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
                 break;
             case "ws"_hash:
                 singleproxy["ws-opts"]["path"] >>= path;
+                singleproxy["ws-opts"]["headers"]["Host"] >>= host;
                 break;
             default:
                 net = "tcp";
@@ -1631,6 +1632,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             }
 
             trojanConstruct(node, group, ps, server, port, password, net, host, path, true, udp, tfo, scv, tribool(),  underlying_proxy);
+            node.SNI = sni;
 
             // Assign new parameters to node for Trojan
             node.IpVersion = ip_version;

@@ -434,7 +434,9 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         case ProxyType::Trojan:
             singleproxy["type"] = "trojan";
             singleproxy["password"] = x.Password;
-            if(!x.Host.empty())
+            if(!x.SNI.empty())
+                singleproxy["sni"] = x.SNI;
+            else if(!x.Host.empty())
                 singleproxy["sni"] = x.Host;
             if(std::all_of(x.Password.begin(), x.Password.end(), ::isdigit) && !x.Password.empty())
                 singleproxy["password"].SetTag("str");
@@ -443,6 +445,7 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             switch(hash_(x.TransferProtocol))
             {
             case "tcp"_hash:
+                singleproxy["network"] = "tcp";
                 break;
             case "grpc"_hash:
                 singleproxy["network"] = x.TransferProtocol;
@@ -540,8 +543,12 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             if (!x.Mport.empty())
                 singleproxy["mport"] = x.Mport;
             if (!x.Up.empty())
+                singleproxy["up"] = x.Up;
+            else if (x.UpSpeed)
                 singleproxy["up"] = x.UpSpeed;
             if (!x.Down.empty())
+                singleproxy["down"] = x.Down;
+            else if (x.DownSpeed)
                 singleproxy["down"] = x.DownSpeed;
             if (!x.Password.empty())
                 singleproxy["password"] = x.Password;
