@@ -3,6 +3,9 @@
 
 #include "utils/base64/base64.h"
 #include "utils/ini_reader/ini_reader.h"
+#ifndef NO_WEBGET
+#include "utils/logger.h"
+#endif
 #include "utils/network.h"
 #include "utils/rapidjson_extra.h"
 #include "utils/regexp.h"
@@ -1233,6 +1236,8 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
     const std::string section = yamlnode["proxies"].IsDefined() ? "proxies" : "Proxy";
     for(uint32_t i = 0; i < yamlnode[section].size(); i++)
     {
+        try
+        {
         Proxy node;
         Node singleproxy = yamlnode[section][i];
         std::string proxytype, ps, server, port, cipher, group, password, underlying_proxy; //common
@@ -1248,7 +1253,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         StringArray anytls_alpn;
         std::string flow, xtls, short_id;
         // New parameters from mihomo
-        std::string ip_version, client_fingerprint, ech_config, certificate, private_key_pem, vless_encryption;
+        std::string ip_version, client_fingerprint, ech_config, ech_query_server_name, certificate, private_key_pem, vless_encryption;
         std::string smux_protocol, ws_early_data_header_name, http_method, trojan_ss_method, trojan_ss_password;
         std::string ws_max_early_data;
         tribool ech_enable, smux_enabled, smux_padding, smux_statistic, smux_only_tcp, v2ray_http_upgrade, v2ray_http_upgrade_fast_open;
@@ -1283,6 +1288,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         {
             ech_enable = safe_as<std::string>(singleproxy["ech-opts"]["enable"]);
             singleproxy["ech-opts"]["config"] >>= ech_config;
+            singleproxy["ech-opts"]["query-server-name"] >>= ech_query_server_name;
         }
 
         switch(hash_(proxytype))
@@ -1336,6 +1342,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             node.ClientFingerprint = client_fingerprint;
             node.EchEnable = ech_enable;
             node.EchConfig = ech_config;
+            node.EchQueryServerName = ech_query_server_name;
             node.Certificate = certificate;
             node.PrivateKeyPem = private_key_pem;
             if(singleproxy["ws-opts"].IsDefined())
@@ -1398,6 +1405,11 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
                     singleproxy["grpc-opts"]["grpc-service-name"] >>= path;
                     singleproxy["grpc-opts"]["grpc-mode"] >>= mode;
                     break;
+                case "xhttp"_hash:
+                    singleproxy["xhttp-opts"]["path"] >>= path;
+                    singleproxy["xhttp-opts"]["host"] >>= host;
+                    singleproxy["xhttp-opts"]["mode"] >>= mode;
+                    break;
                 case "quic"_hash:
                     singleproxy["quic-opts"]["security"] >>= host;
                     singleproxy["quic-opts"]["key"] >>= path;
@@ -1415,10 +1427,12 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             node.IpVersion = ip_version;
             node.EchEnable = ech_enable;
             node.EchConfig = ech_config;
+            node.EchQueryServerName = ech_query_server_name;
             node.Certificate = certificate;
             node.PrivateKeyPem = private_key_pem;
             singleproxy["encryption"] >>= vless_encryption;
             node.VlessEncryption = vless_encryption;
+            node.XHttpMode = mode;
             // packet-encoding and xudp support - only assign if explicitly provided
             if(singleproxy["packet-encoding"].IsDefined())
             {
@@ -1543,6 +1557,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             node.ClientFingerprint = client_fingerprint;
             node.EchEnable = ech_enable;
             node.EchConfig = ech_config;
+            node.EchQueryServerName = ech_query_server_name;
             node.SmuxEnabled = smux_enabled;
             node.SmuxProtocol = smux_protocol;
             node.SmuxMaxConnections = smux_max_connections;
@@ -1622,6 +1637,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             node.ClientFingerprint = client_fingerprint;
             node.EchEnable = ech_enable;
             node.EchConfig = ech_config;
+            node.EchQueryServerName = ech_query_server_name;
             node.Certificate = certificate;
             node.PrivateKeyPem = private_key_pem;
             if(singleproxy["ss-opts"].IsDefined())
@@ -1705,6 +1721,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             node.ClientFingerprint = client_fingerprint;
             node.EchEnable = ech_enable;
             node.EchConfig = ech_config;
+            node.EchQueryServerName = ech_query_server_name;
             node.Certificate = certificate;
             node.PrivateKeyPem = private_key_pem;
             node.FastOpen = safe_as<std::string>(singleproxy["fast-open"]);
@@ -1737,6 +1754,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             node.ClientFingerprint = client_fingerprint;
             node.EchEnable = ech_enable;
             node.EchConfig = ech_config;
+            node.EchQueryServerName = ech_query_server_name;
             node.Certificate = certificate;
             node.PrivateKeyPem = private_key_pem;
             // Hysteria2 additional windows and udp mtu - only assign if explicitly provided
@@ -1777,6 +1795,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             node.ClientFingerprint = client_fingerprint;
             node.EchEnable = ech_enable;
             node.EchConfig = ech_config;
+            node.EchQueryServerName = ech_query_server_name;
             node.Certificate = certificate;
             node.PrivateKeyPem = private_key_pem;
             node.SNI = sni;  // Ensure SNI is set
@@ -1824,6 +1843,13 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         node.Id = index;
         nodes.emplace_back(std::move(node));
         index++;
+        }
+        catch(const std::exception &e)
+        {
+#ifndef NO_WEBGET
+            writeLog(0, "Skipping invalid Clash proxy at index " + std::to_string(i) + ": " + e.what(), LOG_LEVEL_WARNING);
+#endif
+        }
     }
 }
 
@@ -3220,8 +3246,26 @@ void explodeSub(std::string sub, std::vector<Proxy> &nodes)
     {
         if(!processed && regFind(sub, "\"?(Proxy|proxies)\"?:"))
         {
-            regGetMatch(sub, R"(^(?:Proxy|proxies):$\s(?:(?:^ +?.*$| *?-.*$|)\s?)+)", 1, &sub);
-            Node yamlnode = Load(sub);
+            Node yamlnode;
+            try
+            {
+                // A Clash/Mihomo document is valid YAML as a whole. Parsing it
+                // directly avoids truncating long flow-style proxy entries in
+                // the legacy section-extraction regular expression.
+                yamlnode = Load(sub);
+            }
+            catch(const std::exception &)
+            {
+                yamlnode.reset();
+            }
+            if(!yamlnode.IsDefined() || (!yamlnode["Proxy"].IsDefined() && !yamlnode["proxies"].IsDefined()))
+            {
+                // Keep compatibility with subscriptions that append non-YAML
+                // content after the proxy section.
+                std::string clash_section;
+                regGetMatch(sub, R"(^(?:Proxy|proxies):$\s(?:(?:^ +?.*$| *?-.*$|)\s?)+)", 1, &clash_section);
+                yamlnode = Load(clash_section);
+            }
             if(yamlnode.size() && (yamlnode["Proxy"].IsDefined() || yamlnode["proxies"].IsDefined()))
             {
                 explodeClash(yamlnode, nodes);

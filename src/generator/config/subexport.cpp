@@ -690,6 +690,15 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
                     singleproxy["grpc-opts"]["grpc-mode"] = x.GRPCMode;
                     singleproxy["grpc-opts"]["grpc-service-name"] = x.GRPCServiceName;
                     break;
+                case "xhttp"_hash:
+                    singleproxy["network"] = x.TransferProtocol;
+                    if(!x.Path.empty())
+                        singleproxy["xhttp-opts"]["path"] = x.Path;
+                    if(!x.Host.empty())
+                        singleproxy["xhttp-opts"]["host"] = x.Host;
+                    if(!x.XHttpMode.empty())
+                        singleproxy["xhttp-opts"]["mode"] = x.XHttpMode;
+                    break;
                 default:
                     break;
             }
@@ -718,6 +727,8 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             }
             if (!scv.is_undef())
                 singleproxy["skip-cert-verify"] = scv.get();
+            if (!x.VlessEncryption.empty())
+                singleproxy["encryption"] = x.VlessEncryption;
             break;
         default:
             continue;
@@ -730,6 +741,14 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             singleproxy["udp"] = x.UDP.get();
         if(!tfo.is_undef())
             singleproxy["tfo"] = tfo.get();
+        if(!x.ClientFingerprint.empty())
+            singleproxy["client-fingerprint"] = x.ClientFingerprint;
+        if(!x.EchEnable.is_undef())
+            singleproxy["ech-opts"]["enable"] = x.EchEnable.get();
+        if(!x.EchConfig.empty())
+            singleproxy["ech-opts"]["config"] = x.EchConfig;
+        if(!x.EchQueryServerName.empty())
+            singleproxy["ech-opts"]["query-server-name"] = x.EchQueryServerName;
         if(proxy_block)
             singleproxy.SetStyle(YAML::EmitterStyle::Block);
         else

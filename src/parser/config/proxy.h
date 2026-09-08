@@ -185,6 +185,7 @@ struct Proxy
     // ECH (Encrypted Client Hello) options
     tribool EchEnable;
     String EchConfig;
+    String EchQueryServerName;
     
     // SMUX (multiplexing) options for Shadowsocks
     tribool SmuxEnabled;
@@ -202,6 +203,9 @@ struct Proxy
     
     // VLESS encryption
     String VlessEncryption;              // mlkem768x25519plus.native/xorpub/random.1rtt/0rtt
+
+    // VLESS XHTTP transport options
+    String XHttpMode;
     
     // WebSocket additional options
     uint32_t WsMaxEarlyData;
