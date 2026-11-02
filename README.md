@@ -13,12 +13,23 @@ by default, so services such as Sub-Store return native YAML with these fields
 instead of a lossy URI list. An explicit `ua` query parameter takes precedence.
 Download caches are separated by User-Agent to keep negotiated formats apart.
 
-Native Clash/Mihomo YAML nodes also retain fields not emitted by the converter,
-including nested maps, sequences, booleans and nulls. Generated fields and
-explicit conversion options take precedence; deprecated aliases are normalized.
-This passthrough applies to supported proxy types exported back to Clash YAML.
-It does not invent missing fields, translate unknown URI parameters or make an
-older client understand new options. Unknown protocol types still require a parser.
+Native Mihomo YAML/JSON input supports all 28 outbound types in the audited
+Mihomo source, including SSH, ShadowQUIC, Sudoku, MASQUE, TrustTunnel, OpenVPN,
+Tailscale, ZeroTier, EasyTier, GOST Relay and named built-in policies. With
+`new_name=true`, the original node map is authoritative: nested options, explicit
+false/zero/null values, strings, peer-only endpoints and future fields survive
+without reconstruction by the legacy model. Explicit conversion flags and node
+renaming still apply; renamed `dialer-proxy` references follow the target node.
+String types use quotes rather than explicit YAML tags.
+
+This is native configuration conversion, not implementation of these network
+protocols. The receiving Mihomo core must support the protocol and any required
+build features. New protocol support does not create new share-URI formats or
+translations to clients that cannot represent them. Existing URI importers and
+legacy target exporters retain their protocol-specific behavior.
+
+See [the protocol and parameter audit](docs/mihomo-support.md) and the pinned,
+machine-readable [option schema](scripts/mihomo_schema.json).
 
 [![Build Status](https://github.com/metacubex/subconverter/actions/workflows/build.yml/badge.svg)](https://github.com/metacubex/subconverter/actions)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/metacubex/subconverter.svg)](https://github.com/metacubex/subconverter/tags)

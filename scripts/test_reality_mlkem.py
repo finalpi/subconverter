@@ -17,6 +17,7 @@ import urllib.request
 import uuid
 
 import yaml
+from test_mihomo_native import run_native_cases
 
 FLAG = "support-x25519mlkem768"
 MISSING = object()
@@ -217,6 +218,7 @@ def run_cases(endpoint, fixtures, fixture_url):
         node = convert(dict(mieru, **{"port-range": value}), "mieru-empty-range-" + label)
         assert node["port"] == 8443, node
         count += 1
+    count += run_native_cases(endpoint, fixtures, fixture_url)
     print(json.dumps({"result": "REALITY_MLKEM_REGRESSION_PASSED", "checks": count}), flush=True)
 
 

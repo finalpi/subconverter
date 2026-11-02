@@ -1,0 +1,2484 @@
+{
+  "protocols": {
+    "anytls": {
+      "option_struct": "AnyTLSOption"
+    },
+    "direct": {
+      "option_struct": "DirectOption"
+    },
+    "dns": {
+      "option_struct": "DnsOption"
+    },
+    "easytier": {
+      "option_struct": "EasyTierOption"
+    },
+    "gost-relay": {
+      "option_struct": "GostRelayOption"
+    },
+    "http": {
+      "option_struct": "HttpOption"
+    },
+    "hysteria": {
+      "option_struct": "HysteriaOption"
+    },
+    "hysteria2": {
+      "option_struct": "Hysteria2Option"
+    },
+    "masque": {
+      "option_struct": "MasqueOption"
+    },
+    "mieru": {
+      "option_struct": "MieruOption"
+    },
+    "openvpn": {
+      "option_struct": "OpenVPNOption"
+    },
+    "reject": {
+      "option_struct": "RejectOption"
+    },
+    "rematch": {
+      "option_struct": "RematchOption"
+    },
+    "shadowquic": {
+      "option_struct": "ShadowQuicOption"
+    },
+    "snell": {
+      "option_struct": "SnellOption"
+    },
+    "socks5": {
+      "option_struct": "Socks5Option"
+    },
+    "ss": {
+      "option_struct": "ShadowSocksOption"
+    },
+    "ssh": {
+      "option_struct": "SshOption"
+    },
+    "ssr": {
+      "option_struct": "ShadowSocksROption"
+    },
+    "sudoku": {
+      "option_struct": "SudokuOption"
+    },
+    "tailscale": {
+      "option_struct": "TailscaleOption"
+    },
+    "trojan": {
+      "option_struct": "TrojanOption"
+    },
+    "trusttunnel": {
+      "option_struct": "TrustTunnelOption"
+    },
+    "tuic": {
+      "option_struct": "TuicOption"
+    },
+    "vless": {
+      "option_struct": "VlessOption"
+    },
+    "vmess": {
+      "option_struct": "VmessOption"
+    },
+    "wireguard": {
+      "option_struct": "WireGuardOption"
+    },
+    "zerotier": {
+      "option_struct": "ZeroTierOption"
+    }
+  },
+  "source": {
+    "parser": "adapter/parser.go",
+    "repository": "https://github.com/MetaCubeX/mihomo",
+    "revision": "3f27ef39f8c96bbfbc8b0b9bb10f5c9ef60149d8"
+  },
+  "structs": {
+    "AmneziaWGOption": {
+      "fields": {
+        "content-padding-addition": {
+          "go_type": "string"
+        },
+        "disable-cookies": {
+          "go_type": "bool"
+        },
+        "h1": {
+          "go_type": "string"
+        },
+        "h2": {
+          "go_type": "string"
+        },
+        "h3": {
+          "go_type": "string"
+        },
+        "h4": {
+          "go_type": "string"
+        },
+        "header-protection-key": {
+          "go_type": "string"
+        },
+        "i1": {
+          "go_type": "string"
+        },
+        "i2": {
+          "go_type": "string"
+        },
+        "i3": {
+          "go_type": "string"
+        },
+        "i4": {
+          "go_type": "string"
+        },
+        "i5": {
+          "go_type": "string"
+        },
+        "itime": {
+          "go_type": "int64"
+        },
+        "j1": {
+          "go_type": "string"
+        },
+        "j2": {
+          "go_type": "string"
+        },
+        "j3": {
+          "go_type": "string"
+        },
+        "jc": {
+          "go_type": "int"
+        },
+        "jmax": {
+          "go_type": "int"
+        },
+        "jmin": {
+          "go_type": "int"
+        },
+        "keepalive-timeout": {
+          "go_type": "string"
+        },
+        "max-handshake-attempts": {
+          "go_type": "string"
+        },
+        "random-trailers": {
+          "go_type": "bool"
+        },
+        "reject-after-time": {
+          "go_type": "string"
+        },
+        "rekey-after-time": {
+          "go_type": "string"
+        },
+        "rekey-timeout": {
+          "go_type": "string"
+        },
+        "s1": {
+          "go_type": "int"
+        },
+        "s2": {
+          "go_type": "int"
+        },
+        "s3": {
+          "go_type": "int"
+        },
+        "s4": {
+          "go_type": "int"
+        },
+        "version": {
+          "go_type": "int"
+        }
+      }
+    },
+    "AnyTLSOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "client-metadata": {
+          "go_type": "string"
+        },
+        "disable-reuse": {
+          "go_type": "bool"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "idle-session-check-interval": {
+          "go_type": "int"
+        },
+        "idle-session-timeout": {
+          "go_type": "int"
+        },
+        "jls-opts": {
+          "go_type": "JLSOptions"
+        },
+        "min-idle-session": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "restls-opts": {
+          "go_type": "RestlsOptions"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "shadow-tls-opts": {
+          "go_type": "ShadowTLSOptions"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "BasicOption": {
+      "fields": {
+        "dialer-proxy": {
+          "go_type": "string"
+        },
+        "interface-name": {
+          "go_type": "string"
+        },
+        "ip-version": {
+          "go_type": "C.DNSPrefer"
+        },
+        "mptcp": {
+          "go_type": "bool"
+        },
+        "routing-mark": {
+          "go_type": "int"
+        },
+        "tfo": {
+          "go_type": "bool"
+        }
+      }
+    },
+    "BrutalOption": {
+      "fields": {
+        "down": {
+          "go_type": "string"
+        },
+        "enabled": {
+          "go_type": "bool"
+        },
+        "up": {
+          "go_type": "string"
+        }
+      }
+    },
+    "DirectOption": {
+      "fields": {
+        "name": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "DnsOption": {
+      "fields": {
+        "name": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "ECHOptions": {
+      "fields": {
+        "config": {
+          "go_type": "string"
+        },
+        "enable": {
+          "go_type": "bool"
+        },
+        "query-server-name": {
+          "go_type": "string"
+        }
+      }
+    },
+    "EasyTierOption": {
+      "fields": {
+        "accept-dns": {
+          "go_type": "*bool"
+        },
+        "dhcp": {
+          "go_type": "bool"
+        },
+        "disable-kcp-input": {
+          "go_type": "*bool"
+        },
+        "disable-p2p": {
+          "go_type": "*bool"
+        },
+        "disable-quic-input": {
+          "go_type": "*bool"
+        },
+        "enable-encryption": {
+          "go_type": "*bool"
+        },
+        "enable-exit-node": {
+          "go_type": "*bool"
+        },
+        "enable-kcp-proxy": {
+          "go_type": "*bool"
+        },
+        "enable-quic-proxy": {
+          "go_type": "*bool"
+        },
+        "encryption-algorithm": {
+          "go_type": "string"
+        },
+        "exit-nodes": {
+          "go_type": "[]string"
+        },
+        "hostname": {
+          "go_type": "string"
+        },
+        "instance-name": {
+          "go_type": "string"
+        },
+        "ipv4": {
+          "go_type": "string"
+        },
+        "latency-first": {
+          "go_type": "*bool"
+        },
+        "listeners": {
+          "go_type": "[]string"
+        },
+        "local-private-key": {
+          "go_type": "string"
+        },
+        "local-public-key": {
+          "go_type": "string"
+        },
+        "mapped-listeners": {
+          "go_type": "[]string"
+        },
+        "mtu": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "network-name": {
+          "go_type": "string"
+        },
+        "network-secret": {
+          "go_type": "string"
+        },
+        "no-listener": {
+          "go_type": "*bool"
+        },
+        "peers": {
+          "go_type": "[]string"
+        },
+        "private-mode": {
+          "go_type": "*bool"
+        },
+        "proxy-networks": {
+          "go_type": "[]string"
+        },
+        "secure-mode": {
+          "go_type": "*bool"
+        },
+        "state-dir": {
+          "go_type": "string"
+        },
+        "tld-dns-zone": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "GostRelayOption": {
+      "fields": {
+        "certificate": {
+          "go_type": "string"
+        },
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "forward": {
+          "go_type": "bool"
+        },
+        "mux": {
+          "go_type": "bool"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "tls": {
+          "go_type": "bool"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "GrpcOptions": {
+      "fields": {
+        "grpc-service-name": {
+          "go_type": "string"
+        },
+        "grpc-user-agent": {
+          "go_type": "string"
+        },
+        "max-connections": {
+          "go_type": "int"
+        },
+        "max-streams": {
+          "go_type": "int"
+        },
+        "min-streams": {
+          "go_type": "int"
+        },
+        "ping-interval": {
+          "go_type": "int"
+        }
+      }
+    },
+    "HTTP2Options": {
+      "fields": {
+        "host": {
+          "go_type": "[]string"
+        },
+        "path": {
+          "go_type": "string"
+        }
+      }
+    },
+    "HTTPOptions": {
+      "fields": {
+        "headers": {
+          "go_type": "map[string][]string"
+        },
+        "method": {
+          "go_type": "string"
+        },
+        "path": {
+          "go_type": "[]string"
+        }
+      }
+    },
+    "HttpOption": {
+      "fields": {
+        "certificate": {
+          "go_type": "string"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "headers": {
+          "go_type": "map[string]string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "tls": {
+          "go_type": "bool"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "Hysteria2Option": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "bbr-profile": {
+          "go_type": "string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "cwnd": {
+          "go_type": "int"
+        },
+        "down": {
+          "go_type": "string"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "handshake-timeout": {
+          "go_type": "int"
+        },
+        "hop-interval": {
+          "go_type": "string"
+        },
+        "initial-connection-receive-window": {
+          "go_type": "uint64"
+        },
+        "initial-stream-receive-window": {
+          "go_type": "uint64"
+        },
+        "max-connection-receive-window": {
+          "go_type": "uint64"
+        },
+        "max-stream-receive-window": {
+          "go_type": "uint64"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "obfs": {
+          "go_type": "string"
+        },
+        "obfs-max-packet-size": {
+          "go_type": "int"
+        },
+        "obfs-min-packet-size": {
+          "go_type": "int"
+        },
+        "obfs-password": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "ports": {
+          "go_type": "string"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "realm-opts": {
+          "go_type": "Hysteria2RealmOption"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "udp-mtu": {
+          "go_type": "int"
+        },
+        "up": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "Hysteria2RealmOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "enable": {
+          "go_type": "bool"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "realm-id": {
+          "go_type": "string"
+        },
+        "server-url": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "stun-servers": {
+          "go_type": "[]string"
+        },
+        "token": {
+          "go_type": "string"
+        }
+      }
+    },
+    "HysteriaOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "auth": {
+          "go_type": "string"
+        },
+        "auth-str": {
+          "go_type": "string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "disable-mtu-discovery": {
+          "go_type": "bool"
+        },
+        "down": {
+          "go_type": "string"
+        },
+        "down-speed": {
+          "go_type": "int"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "fast-open": {
+          "go_type": "bool"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "hop-interval": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "obfs": {
+          "go_type": "string"
+        },
+        "obfs-protocol": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "ports": {
+          "go_type": "string"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "protocol": {
+          "go_type": "string"
+        },
+        "recv-window": {
+          "go_type": "int"
+        },
+        "recv-window-conn": {
+          "go_type": "int"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "up": {
+          "go_type": "string"
+        },
+        "up-speed": {
+          "go_type": "int"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "IPStackOption": {
+      "fields": {
+        "congestion-controller": {
+          "go_type": "string"
+        },
+        "mode": {
+          "go_type": "string"
+        }
+      }
+    },
+    "JLSOptions": {
+      "fields": {
+        "password": {
+          "go_type": "string"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      }
+    },
+    "MKCPOptions": {
+      "fields": {
+        "congestion": {
+          "go_type": "bool"
+        },
+        "downlink-capacity": {
+          "go_type": "uint32"
+        },
+        "header": {
+          "go_type": "string"
+        },
+        "mtu": {
+          "go_type": "uint32"
+        },
+        "read-buffer": {
+          "go_type": "uint32"
+        },
+        "seed": {
+          "go_type": "string"
+        },
+        "tti": {
+          "go_type": "uint32"
+        },
+        "uplink-capacity": {
+          "go_type": "uint32"
+        },
+        "write-buffer": {
+          "go_type": "uint32"
+        }
+      }
+    },
+    "MasqueOption": {
+      "fields": {
+        "bbr-profile": {
+          "go_type": "string"
+        },
+        "congestion-controller": {
+          "go_type": "string"
+        },
+        "cwnd": {
+          "go_type": "int"
+        },
+        "dns": {
+          "go_type": "[]string"
+        },
+        "handshake-timeout": {
+          "go_type": "int"
+        },
+        "ip": {
+          "go_type": "string"
+        },
+        "ip-stack": {
+          "go_type": "IPStackOption"
+        },
+        "ipv6": {
+          "go_type": "string"
+        },
+        "mtu": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "network": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "public-key": {
+          "go_type": "string"
+        },
+        "remote-dns-resolve": {
+          "go_type": "bool"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "uri": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "MekyaOptions": {
+      "fields": {
+        "h2-pool-size": {
+          "go_type": "int"
+        },
+        "kcp": {
+          "go_type": "MKCPOptions"
+        },
+        "max-request-size": {
+          "go_type": "int"
+        },
+        "max-simultaneous-write-connection": {
+          "go_type": "int"
+        },
+        "max-write-delay": {
+          "go_type": "int"
+        },
+        "max-write-duration-ms": {
+          "go_type": "int"
+        },
+        "max-write-size": {
+          "go_type": "int"
+        },
+        "packet-writing-buffer": {
+          "go_type": "int"
+        },
+        "polling-interval-initial": {
+          "go_type": "int"
+        },
+        "url": {
+          "go_type": "string"
+        }
+      }
+    },
+    "MieruOption": {
+      "fields": {
+        "handshake-mode": {
+          "go_type": "string"
+        },
+        "multiplexing": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "port-range": {
+          "go_type": "string"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "traffic-pattern": {
+          "go_type": "string"
+        },
+        "transport": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "OpenVPNOption": {
+      "fields": {
+        "auth": {
+          "go_type": "string"
+        },
+        "ca": {
+          "go_type": "string"
+        },
+        "cert": {
+          "go_type": "string"
+        },
+        "cipher": {
+          "go_type": "string"
+        },
+        "comp-lzo": {
+          "go_type": "string"
+        },
+        "data-ciphers": {
+          "go_type": "[]string"
+        },
+        "data-ciphers-fallback": {
+          "go_type": "string"
+        },
+        "dev": {
+          "go_type": "string"
+        },
+        "dns": {
+          "go_type": "[]string"
+        },
+        "handshake-timeout": {
+          "go_type": "int"
+        },
+        "ip-stack": {
+          "go_type": "IPStackOption"
+        },
+        "key": {
+          "go_type": "string"
+        },
+        "key-direction": {
+          "go_type": "string"
+        },
+        "mtu": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "peer-info": {
+          "go_type": "map[string]string"
+        },
+        "ping": {
+          "go_type": "int"
+        },
+        "ping-restart": {
+          "go_type": "int"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "proto": {
+          "go_type": "string"
+        },
+        "remote-dns-resolve": {
+          "go_type": "bool"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "tls-auth": {
+          "go_type": "string"
+        },
+        "tls-crypt": {
+          "go_type": "string"
+        },
+        "tls-crypt-v2": {
+          "go_type": "string"
+        },
+        "tran-window": {
+          "go_type": "*int"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "RealityOptions": {
+      "fields": {
+        "public-key": {
+          "go_type": "string"
+        },
+        "short-id": {
+          "go_type": "string"
+        },
+        "support-x25519mlkem768": {
+          "go_type": "bool"
+        }
+      }
+    },
+    "RejectOption": {
+      "fields": {
+        "name": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "RematchOption": {
+      "fields": {
+        "name": {
+          "go_type": "string"
+        },
+        "target-rematch-name": {
+          "go_type": "*string"
+        },
+        "target-sub-rule": {
+          "go_type": "*string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "RestlsOptions": {
+      "fields": {
+        "password": {
+          "go_type": "string"
+        },
+        "restls-script": {
+          "go_type": "string"
+        },
+        "version-hint": {
+          "go_type": "string"
+        }
+      }
+    },
+    "ShadowQuicOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "bbr-profile": {
+          "go_type": "string"
+        },
+        "congestion-controller": {
+          "go_type": "string"
+        },
+        "cwnd": {
+          "go_type": "int"
+        },
+        "disable-mtu-discovery": {
+          "go_type": "bool"
+        },
+        "down": {
+          "go_type": "string"
+        },
+        "keep-alive-interval": {
+          "go_type": "int"
+        },
+        "max-datagram-frame-size": {
+          "go_type": "int"
+        },
+        "max-open-streams": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "quic-versions": {
+          "go_type": "[]string"
+        },
+        "recv-window": {
+          "go_type": "int"
+        },
+        "recv-window-conn": {
+          "go_type": "int"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "udp-over-stream": {
+          "go_type": "bool"
+        },
+        "up": {
+          "go_type": "string"
+        },
+        "username": {
+          "go_type": "string"
+        },
+        "zero-rtt": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "ShadowSocksOption": {
+      "fields": {
+        "cipher": {
+          "go_type": "string"
+        },
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "plugin": {
+          "go_type": "string"
+        },
+        "plugin-opts": {
+          "go_type": "map[string]any"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "udp-over-tcp": {
+          "go_type": "bool"
+        },
+        "udp-over-tcp-version": {
+          "go_type": "int"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "ShadowSocksROption": {
+      "fields": {
+        "cipher": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "obfs": {
+          "go_type": "string"
+        },
+        "obfs-param": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "protocol": {
+          "go_type": "string"
+        },
+        "protocol-param": {
+          "go_type": "string"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "ShadowTLSOptions": {
+      "fields": {
+        "password": {
+          "go_type": "string"
+        },
+        "version": {
+          "go_type": "int"
+        }
+      }
+    },
+    "SingMuxOption": {
+      "fields": {
+        "brutal-opts": {
+          "go_type": "BrutalOption"
+        },
+        "enabled": {
+          "go_type": "bool"
+        },
+        "max-connections": {
+          "go_type": "int"
+        },
+        "max-streams": {
+          "go_type": "int"
+        },
+        "min-streams": {
+          "go_type": "int"
+        },
+        "only-tcp": {
+          "go_type": "bool"
+        },
+        "padding": {
+          "go_type": "bool"
+        },
+        "protocol": {
+          "go_type": "string"
+        },
+        "statistic": {
+          "go_type": "bool"
+        }
+      }
+    },
+    "SnellOption": {
+      "fields": {
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "obfs-opts": {
+          "go_type": "map[string]any"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "psk": {
+          "go_type": "string"
+        },
+        "reuse": {
+          "go_type": "bool"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "version": {
+          "go_type": "int"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "Socks5Option": {
+      "fields": {
+        "certificate": {
+          "go_type": "string"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "tls": {
+          "go_type": "bool"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "SshOption": {
+      "fields": {
+        "host-key": {
+          "go_type": "[]string"
+        },
+        "host-key-algorithms": {
+          "go_type": "[]string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "private-key-passphrase": {
+          "go_type": "string"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "SudokuHTTPMaskOptions": {
+      "fields": {
+        "disable": {
+          "go_type": "bool"
+        },
+        "host": {
+          "go_type": "string"
+        },
+        "mode": {
+          "go_type": "string"
+        },
+        "multiplex": {
+          "go_type": "string"
+        },
+        "path-root": {
+          "go_type": "string"
+        },
+        "tls": {
+          "go_type": "bool"
+        }
+      }
+    },
+    "SudokuOption": {
+      "fields": {
+        "aead-method": {
+          "go_type": "string"
+        },
+        "custom-table": {
+          "go_type": "string"
+        },
+        "custom-tables": {
+          "go_type": "[]string"
+        },
+        "enable-pure-downlink": {
+          "go_type": "*bool"
+        },
+        "http-mask": {
+          "go_type": "*bool"
+        },
+        "http-mask-host": {
+          "go_type": "string"
+        },
+        "http-mask-mode": {
+          "go_type": "string"
+        },
+        "http-mask-multiplex": {
+          "go_type": "string"
+        },
+        "http-mask-tls": {
+          "go_type": "bool"
+        },
+        "httpmask": {
+          "go_type": "*SudokuHTTPMaskOptions"
+        },
+        "key": {
+          "go_type": "string"
+        },
+        "multiplex": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "padding-max": {
+          "go_type": "*int"
+        },
+        "padding-min": {
+          "go_type": "*int"
+        },
+        "path-root": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "table-type": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "TLSMirrorConnectionEnrolment": {
+      "fields": {
+        "primary-egress-outbound": {
+          "go_type": "string"
+        },
+        "primary-ingress-outbound": {
+          "go_type": "string"
+        }
+      }
+    },
+    "TLSMirrorOptions": {
+      "fields": {
+        "connection-enrolment": {
+          "go_type": "*TLSMirrorConnectionEnrolment"
+        },
+        "defer-instance-derived-write-time": {
+          "go_type": "TLSMirrorTimeSpec"
+        },
+        "embedded-traffic-generator": {
+          "go_type": "TLSMirrorTrafficGenerator"
+        },
+        "explicit-nonce-ciphersuites": {
+          "go_type": "[]uint16"
+        },
+        "primary-key": {
+          "go_type": "string"
+        },
+        "sequence-watermarking-enabled": {
+          "go_type": "bool"
+        },
+        "transport-layer-padding": {
+          "go_type": "TLSMirrorTransportLayerPadding"
+        }
+      }
+    },
+    "TLSMirrorTimeSpec": {
+      "fields": {
+        "base-nanoseconds": {
+          "go_type": "uint64"
+        },
+        "uniform-random-multiplier-nanoseconds": {
+          "go_type": "uint64"
+        }
+      }
+    },
+    "TLSMirrorTrafficGenerator": {
+      "fields": {
+        "steps": {
+          "go_type": "[]TLSMirrorTrafficStep"
+        }
+      }
+    },
+    "TLSMirrorTrafficHeader": {
+      "fields": {
+        "name": {
+          "go_type": "string"
+        },
+        "value": {
+          "go_type": "string"
+        },
+        "values": {
+          "go_type": "[]string"
+        }
+      }
+    },
+    "TLSMirrorTrafficStep": {
+      "fields": {
+        "connection-ready": {
+          "go_type": "bool"
+        },
+        "connection-recall-exit": {
+          "go_type": "bool"
+        },
+        "h2-do-not-wait-for-download-finish": {
+          "go_type": "bool"
+        },
+        "headers": {
+          "go_type": "[]TLSMirrorTrafficHeader"
+        },
+        "host": {
+          "go_type": "string"
+        },
+        "method": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "next-step": {
+          "go_type": "[]TLSMirrorTrafficTransferCandidate"
+        },
+        "path": {
+          "go_type": "string"
+        },
+        "wait-time": {
+          "go_type": "TLSMirrorTimeSpec"
+        }
+      }
+    },
+    "TLSMirrorTrafficTransferCandidate": {
+      "fields": {
+        "goto-location": {
+          "go_type": "int"
+        },
+        "weight": {
+          "go_type": "int32"
+        }
+      }
+    },
+    "TLSMirrorTransportLayerPadding": {
+      "fields": {
+        "enabled": {
+          "go_type": "bool"
+        }
+      }
+    },
+    "TailscaleOption": {
+      "fields": {
+        "accept-routes": {
+          "go_type": "*bool"
+        },
+        "auth-key": {
+          "go_type": "string"
+        },
+        "control-url": {
+          "go_type": "string"
+        },
+        "ephemeral": {
+          "go_type": "bool"
+        },
+        "exit-node": {
+          "go_type": "string"
+        },
+        "exit-node-allow-lan-access": {
+          "go_type": "*bool"
+        },
+        "hostname": {
+          "go_type": "string"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "state-dir": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "TrojanOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "grpc-opts": {
+          "go_type": "GrpcOptions"
+        },
+        "jls-opts": {
+          "go_type": "JLSOptions"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "network": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "reality-opts": {
+          "go_type": "RealityOptions"
+        },
+        "restls-opts": {
+          "go_type": "RestlsOptions"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "shadow-tls-opts": {
+          "go_type": "ShadowTLSOptions"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "ss-opts": {
+          "go_type": "TrojanSSOption"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "ws-opts": {
+          "go_type": "WSOptions"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "TrojanSSOption": {
+      "fields": {
+        "enabled": {
+          "go_type": "bool"
+        },
+        "method": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        }
+      }
+    },
+    "TrustTunnelOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "bbr-profile": {
+          "go_type": "string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "congestion-controller": {
+          "go_type": "string"
+        },
+        "cwnd": {
+          "go_type": "int"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "health-check": {
+          "go_type": "bool"
+        },
+        "max-connections": {
+          "go_type": "int"
+        },
+        "max-streams": {
+          "go_type": "int"
+        },
+        "min-streams": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "quic": {
+          "go_type": "bool"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "username": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "TuicOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "bbr-profile": {
+          "go_type": "string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "congestion-controller": {
+          "go_type": "string"
+        },
+        "cwnd": {
+          "go_type": "int"
+        },
+        "disable-mtu-discovery": {
+          "go_type": "bool"
+        },
+        "disable-sni": {
+          "go_type": "bool"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "fast-open": {
+          "go_type": "bool"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "heartbeat-interval": {
+          "go_type": "int"
+        },
+        "ip": {
+          "go_type": "string"
+        },
+        "max-datagram-frame-size": {
+          "go_type": "int"
+        },
+        "max-open-streams": {
+          "go_type": "int"
+        },
+        "max-udp-relay-packet-size": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "password": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "recv-window": {
+          "go_type": "int"
+        },
+        "recv-window-conn": {
+          "go_type": "int"
+        },
+        "reduce-rtt": {
+          "go_type": "bool"
+        },
+        "request-timeout": {
+          "go_type": "int"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "sni": {
+          "go_type": "string"
+        },
+        "token": {
+          "go_type": "string"
+        },
+        "udp-over-stream": {
+          "go_type": "bool"
+        },
+        "udp-over-stream-version": {
+          "go_type": "int"
+        },
+        "udp-relay-mode": {
+          "go_type": "string"
+        },
+        "uuid": {
+          "go_type": "string"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "VlessOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "encryption": {
+          "go_type": "string"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "flow": {
+          "go_type": "string"
+        },
+        "grpc-opts": {
+          "go_type": "GrpcOptions"
+        },
+        "h2-opts": {
+          "go_type": "HTTP2Options"
+        },
+        "http-opts": {
+          "go_type": "HTTPOptions"
+        },
+        "jls-opts": {
+          "go_type": "JLSOptions"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "network": {
+          "go_type": "string"
+        },
+        "packet-addr": {
+          "go_type": "bool"
+        },
+        "packet-encoding": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "reality-opts": {
+          "go_type": "RealityOptions"
+        },
+        "restls-opts": {
+          "go_type": "RestlsOptions"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "servername": {
+          "go_type": "string"
+        },
+        "shadow-tls-opts": {
+          "go_type": "ShadowTLSOptions"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "tls": {
+          "go_type": "bool"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "uuid": {
+          "go_type": "string"
+        },
+        "ws-headers": {
+          "go_type": "map[string]string"
+        },
+        "ws-opts": {
+          "go_type": "WSOptions"
+        },
+        "xhttp-opts": {
+          "go_type": "XHTTPOptions"
+        },
+        "xudp": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "VmessOption": {
+      "fields": {
+        "alpn": {
+          "go_type": "[]string"
+        },
+        "alterId": {
+          "go_type": "int"
+        },
+        "authenticated-length": {
+          "go_type": "bool"
+        },
+        "certificate": {
+          "go_type": "string"
+        },
+        "cipher": {
+          "go_type": "string"
+        },
+        "client-fingerprint": {
+          "go_type": "string"
+        },
+        "ech-opts": {
+          "go_type": "ECHOptions"
+        },
+        "fingerprint": {
+          "go_type": "string"
+        },
+        "global-padding": {
+          "go_type": "bool"
+        },
+        "grpc-opts": {
+          "go_type": "GrpcOptions"
+        },
+        "h2-opts": {
+          "go_type": "HTTP2Options"
+        },
+        "http-opts": {
+          "go_type": "HTTPOptions"
+        },
+        "jls-opts": {
+          "go_type": "JLSOptions"
+        },
+        "mekya-opts": {
+          "go_type": "MekyaOptions"
+        },
+        "mkcp-opts": {
+          "go_type": "MKCPOptions"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "name-cert-verify": {
+          "go_type": "string"
+        },
+        "network": {
+          "go_type": "string"
+        },
+        "packet-addr": {
+          "go_type": "bool"
+        },
+        "packet-encoding": {
+          "go_type": "string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "reality-opts": {
+          "go_type": "RealityOptions"
+        },
+        "restls-opts": {
+          "go_type": "RestlsOptions"
+        },
+        "server": {
+          "go_type": "string"
+        },
+        "servername": {
+          "go_type": "string"
+        },
+        "shadow-tls-opts": {
+          "go_type": "ShadowTLSOptions"
+        },
+        "skip-cert-verify": {
+          "go_type": "bool"
+        },
+        "tls": {
+          "go_type": "bool"
+        },
+        "tlsmirror-opts": {
+          "go_type": "TLSMirrorOptions"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "uuid": {
+          "go_type": "string"
+        },
+        "ws-opts": {
+          "go_type": "WSOptions"
+        },
+        "xudp": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "WSOptions": {
+      "fields": {
+        "early-data-header-name": {
+          "go_type": "string"
+        },
+        "headers": {
+          "go_type": "map[string]string"
+        },
+        "max-early-data": {
+          "go_type": "int"
+        },
+        "path": {
+          "go_type": "string"
+        },
+        "v2ray-http-upgrade": {
+          "go_type": "bool"
+        },
+        "v2ray-http-upgrade-fast-open": {
+          "go_type": "bool"
+        }
+      }
+    },
+    "WireGuardOption": {
+      "fields": {
+        "amnezia-wg-option": {
+          "go_type": "*AmneziaWGOption"
+        },
+        "dns": {
+          "go_type": "[]string"
+        },
+        "ip": {
+          "go_type": "string"
+        },
+        "ip-stack": {
+          "go_type": "IPStackOption"
+        },
+        "ipv6": {
+          "go_type": "string"
+        },
+        "mtu": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "peers": {
+          "go_type": "[]WireGuardPeerOption"
+        },
+        "persistent-keepalive": {
+          "go_type": "int"
+        },
+        "private-key": {
+          "go_type": "string"
+        },
+        "refresh-server-ip-interval": {
+          "go_type": "int"
+        },
+        "remote-dns-resolve": {
+          "go_type": "bool"
+        },
+        "udp": {
+          "go_type": "bool"
+        },
+        "workers": {
+          "go_type": "int"
+        }
+      },
+      "embeds": [
+        "BasicOption",
+        "WireGuardPeerOption"
+      ]
+    },
+    "WireGuardPeerOption": {
+      "fields": {
+        "allowed-ips": {
+          "go_type": "[]string"
+        },
+        "port": {
+          "go_type": "int"
+        },
+        "pre-shared-key": {
+          "go_type": "string"
+        },
+        "public-key": {
+          "go_type": "string"
+        },
+        "reserved": {
+          "go_type": "[]uint8"
+        },
+        "server": {
+          "go_type": "string"
+        }
+      }
+    },
+    "XHTTPDownloadSettings": {
+      "fields": {
+        "alpn": {
+          "go_type": "*[]string"
+        },
+        "certificate": {
+          "go_type": "*string"
+        },
+        "client-fingerprint": {
+          "go_type": "*string"
+        },
+        "ech-opts": {
+          "go_type": "*ECHOptions"
+        },
+        "fingerprint": {
+          "go_type": "*string"
+        },
+        "headers": {
+          "go_type": "*map[string]string"
+        },
+        "host": {
+          "go_type": "*string"
+        },
+        "jls-opts": {
+          "go_type": "*JLSOptions"
+        },
+        "name-cert-verify": {
+          "go_type": "*string"
+        },
+        "path": {
+          "go_type": "*string"
+        },
+        "port": {
+          "go_type": "*int"
+        },
+        "private-key": {
+          "go_type": "*string"
+        },
+        "reality-opts": {
+          "go_type": "*RealityOptions"
+        },
+        "restls-opts": {
+          "go_type": "*RestlsOptions"
+        },
+        "reuse-settings": {
+          "go_type": "*XHTTPReuseSettings"
+        },
+        "server": {
+          "go_type": "*string"
+        },
+        "servername": {
+          "go_type": "*string"
+        },
+        "shadow-tls-opts": {
+          "go_type": "*ShadowTLSOptions"
+        },
+        "skip-cert-verify": {
+          "go_type": "*bool"
+        },
+        "tls": {
+          "go_type": "*bool"
+        }
+      }
+    },
+    "XHTTPOptions": {
+      "fields": {
+        "download-settings": {
+          "go_type": "*XHTTPDownloadSettings"
+        },
+        "headers": {
+          "go_type": "map[string]string"
+        },
+        "host": {
+          "go_type": "string"
+        },
+        "mode": {
+          "go_type": "string"
+        },
+        "no-grpc-header": {
+          "go_type": "bool"
+        },
+        "path": {
+          "go_type": "string"
+        },
+        "reuse-settings": {
+          "go_type": "*XHTTPReuseSettings"
+        },
+        "sc-max-each-post-bytes": {
+          "go_type": "string"
+        },
+        "sc-min-posts-interval-ms": {
+          "go_type": "string"
+        },
+        "seq-key": {
+          "go_type": "string"
+        },
+        "seq-placement": {
+          "go_type": "string"
+        },
+        "session-key": {
+          "go_type": "string"
+        },
+        "session-length": {
+          "go_type": "string"
+        },
+        "session-placement": {
+          "go_type": "string"
+        },
+        "session-table": {
+          "go_type": "string"
+        },
+        "uplink-chunk-size": {
+          "go_type": "string"
+        },
+        "uplink-data-key": {
+          "go_type": "string"
+        },
+        "uplink-data-placement": {
+          "go_type": "string"
+        },
+        "uplink-http-method": {
+          "go_type": "string"
+        },
+        "x-padding-bytes": {
+          "go_type": "string"
+        },
+        "x-padding-header": {
+          "go_type": "string"
+        },
+        "x-padding-key": {
+          "go_type": "string"
+        },
+        "x-padding-method": {
+          "go_type": "string"
+        },
+        "x-padding-obfs-mode": {
+          "go_type": "bool"
+        },
+        "x-padding-placement": {
+          "go_type": "string"
+        }
+      }
+    },
+    "XHTTPReuseSettings": {
+      "fields": {
+        "c-max-reuse-times": {
+          "go_type": "string"
+        },
+        "h-keep-alive-period": {
+          "go_type": "int"
+        },
+        "h-max-request-times": {
+          "go_type": "string"
+        },
+        "h-max-reusable-secs": {
+          "go_type": "string"
+        },
+        "max-concurrency": {
+          "go_type": "string"
+        },
+        "max-connections": {
+          "go_type": "string"
+        }
+      }
+    },
+    "ZeroTierOption": {
+      "fields": {
+        "dns": {
+          "go_type": "[]string"
+        },
+        "encrypted-hello": {
+          "go_type": "bool"
+        },
+        "identity-secret": {
+          "go_type": "string"
+        },
+        "ip-stack": {
+          "go_type": "IPStackOption"
+        },
+        "low-bandwidth": {
+          "go_type": "bool"
+        },
+        "mtu": {
+          "go_type": "int"
+        },
+        "name": {
+          "go_type": "string"
+        },
+        "network": {
+          "go_type": "string"
+        },
+        "orbit": {
+          "go_type": "[]ZeroTierOrbitOption"
+        },
+        "physical-mtu": {
+          "go_type": "int"
+        },
+        "planet": {
+          "go_type": "string"
+        },
+        "primary-port": {
+          "go_type": "int"
+        },
+        "remote-dns-resolve": {
+          "go_type": "bool"
+        },
+        "remote-trace-level": {
+          "go_type": "uint64"
+        },
+        "remote-trace-target": {
+          "go_type": "string"
+        },
+        "secondary-port": {
+          "go_type": "int"
+        },
+        "state-dir": {
+          "go_type": "string"
+        },
+        "tcp-fallback-mode": {
+          "go_type": "string"
+        },
+        "tcp-fallback-relay": {
+          "go_type": "string"
+        },
+        "udp": {
+          "go_type": "bool"
+        }
+      },
+      "embeds": [
+        "BasicOption"
+      ]
+    },
+    "ZeroTierOrbitOption": {
+      "fields": {
+        "seed": {
+          "go_type": "string"
+        },
+        "world": {
+          "go_type": "string"
+        }
+      }
+    }
+  }
+}

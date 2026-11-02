@@ -12,6 +12,7 @@
 #include "generator/template/templates.h"
 #include "handler/settings.h"
 #include "parser/config/proxy.h"
+#include "parser/config/mihomo.h"
 #include "script/script_quickjs.h"
 #include "utils/bitwise.h"
 #include "utils/file_extra.h"
@@ -123,6 +124,7 @@ bool applyMatcher(const std::string &rule, std::string &real_rule, const Proxy &
         {ProxyType::Shadowsocks,  "SS"},
         {ProxyType::ShadowsocksR, "SSR"},
         {ProxyType::VMess,        "VMESS"},
+        {ProxyType::VLESS,        "VLESS"},
         {ProxyType::Trojan,       "TROJAN"},
         {ProxyType::Snell,        "SNELL"},
         {ProxyType::HTTP,         "HTTP"},
@@ -154,6 +156,12 @@ bool applyMatcher(const std::string &rule, std::string &real_rule, const Proxy &
         real_rule = ret_real_rule;
         if(node.Type == ProxyType::Unknown)
             return false;
+        if(node.Type == ProxyType::ClashNative)
+        {
+            std::string type = node.ClashType;
+            std::transform(type.begin(), type.end(), type.begin(), [](unsigned char c) { return std::toupper(c); });
+            return regMatch(type, target);
+        }
         return regMatch(types.at(node.Type), target);
     }
     else if(startsWith(rule, "!!PORT="))
@@ -287,6 +295,47 @@ static void mergeMissingClashFields(YAML::Node output, const YAML::Node &source)
     }
 }
 
+static YAML::Node nativeClashProxy(const Proxy &proxy, const extra_settings &ext)
+{
+    YAML::Node output = YAML::Load(proxy.ClashYaml);
+    output["name"] = proxy.Remark;
+    output["name"].SetTag("tag:yaml.org,2002:str");
+
+    if(!output["dialer-proxy"].IsDefined() && output["underlying-proxy"].IsDefined())
+        output["dialer-proxy"] = YAML::Clone(output["underlying-proxy"]);
+    output.remove("underlying-proxy");
+
+    // Native QUIC fast-open is independent of TCP TFO.
+    if(proxy.ClashType != "tuic" && proxy.ClashType != "hysteria")
+    {
+        if(!output["tfo"].IsDefined() && output["fast-open"].IsDefined())
+            output["tfo"] = YAML::Clone(output["fast-open"]);
+        output.remove("fast-open");
+    }
+    if(proxy.ClashType == "tuic")
+    {
+        if(!output["heartbeat-interval"].IsDefined() && output["heartbeat_interval"].IsDefined())
+            output["heartbeat-interval"] = YAML::Clone(output["heartbeat_interval"]);
+        output.remove("heartbeat_interval");
+    }
+    if(ext.clash_new_field_name)
+    {
+        if(output["ws-path"].IsDefined() && !output["ws-opts"]["path"].IsDefined())
+            output["ws-opts"]["path"] = YAML::Clone(output["ws-path"]);
+        if(output["ws-headers"].IsDefined() && !output["ws-opts"]["headers"].IsDefined())
+            output["ws-opts"]["headers"] = YAML::Clone(output["ws-headers"]);
+        output.remove("ws-path");
+        output.remove("ws-headers");
+    }
+    // Only explicit conversion settings override native protocol parameters.
+    if(!ext.udp.is_undef()) output["udp"] = ext.udp.get();
+    if(!ext.tfo.is_undef()) output["tfo"] = ext.tfo.get();
+    if(!ext.skip_cert_verify.is_undef() &&
+       (isMihomoTlsType(proxy.ClashType) || output["skip-cert-verify"].IsDefined()))
+        output["skip-cert-verify"] = ext.skip_cert_verify.get();
+    return output;
+}
+
 void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGroupConfigs &extra_proxy_group, bool clashR, extra_settings &ext)
 {
     YAML::Node proxies, original_groups;
@@ -323,12 +372,24 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
     {
         YAML::Node singleproxy;
 
-        std::string type = getProxyTypeName(x.Type);
+        std::string type = x.Type == ProxyType::ClashNative ? x.ClashType : getProxyTypeName(x.Type);
         std::string pluginopts = replaceAllDistinct(x.PluginOption, ";", "&");
         if(ext.append_proxy_type)
             x.Remark = "[" + type + "] " + x.Remark;
 
         processRemark(x.Remark, remarks_list, false);
+
+        if(!x.ClashType.empty() && (ext.clash_new_field_name || x.Type == ProxyType::ClashNative))
+        {
+            if(ext.filter_deprecated && x.Type == ProxyType::Shadowsocks && x.EncryptMethod == "chacha20")
+                continue;
+            YAML::Node native = nativeClashProxy(x, ext);
+            native.SetStyle(proxy_block ? YAML::EmitterStyle::Block : YAML::EmitterStyle::Flow);
+            proxies.push_back(native);
+            remarks_list.emplace_back(x.Remark);
+            nodelist.emplace_back(x);
+            continue;
+        }
 
         tribool udp = ext.udp, tfo = ext.tfo, scv = ext.skip_cert_verify;
         udp.define(x.UDP);
@@ -852,6 +913,25 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         remarks_list.emplace_back(x.Remark);
         nodelist.emplace_back(x);
     }
+
+    // Renaming a node must also update chains that refer to that node.
+    std::map<std::string, std::string> renamed;
+    for(const auto &node : nodelist)
+        if(!node.ClashYaml.empty())
+        {
+            const auto original = safe_as<std::string>(YAML::Load(node.ClashYaml)["name"]);
+            if(original != node.Remark) renamed[original] = node.Remark;
+        }
+    for(auto proxy : proxies)
+        if(proxy["dialer-proxy"].IsScalar())
+        {
+            const auto found = renamed.find(proxy["dialer-proxy"].as<std::string>());
+            if(found != renamed.end())
+            {
+                proxy["dialer-proxy"] = found->second;
+                proxy["dialer-proxy"].SetTag("tag:yaml.org,2002:str");
+            }
+        }
 
     if(proxy_compact)
         proxies.SetStyle(YAML::EmitterStyle::Flow);

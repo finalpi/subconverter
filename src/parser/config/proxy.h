@@ -26,7 +26,8 @@ enum class ProxyType
     Hysteria2,
     TUIC,
     AnyTLS,
-    Mieru
+    Mieru,
+    ClashNative
 };
 
 inline String getProxyTypeName(ProxyType type)
@@ -63,6 +64,8 @@ inline String getProxyTypeName(ProxyType type)
         return "AnyTLS";
     case ProxyType::Mieru:
         return "Mieru";
+    case ProxyType::ClashNative:
+        return "Mihomo";
     default:
         return "Unknown";
     }
@@ -77,6 +80,8 @@ struct Proxy
     String Remark;
     // Original Clash node, retained only for lossless native YAML export.
     String ClashYaml;
+    // Native protocol identity, including types without a legacy target model.
+    String ClashType;
     String Hostname;
     uint16_t Port = 0;
 

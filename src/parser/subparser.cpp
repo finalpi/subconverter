@@ -14,6 +14,7 @@
 #include "utils/urlencode.h"
 #include "utils/yamlcpp_extra.h"
 #include "config/proxy.h"
+#include "config/mihomo.h"
 #include "subparser.h"
 
 using namespace rapidjson;
@@ -1270,7 +1271,7 @@ static void preserveClashStringTags(Node value, std::vector<Node> &visited)
         }
 }
 
-void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
+static void explodeLegacyClash(Node yamlnode, std::vector<Proxy> &nodes)
 {
     uint32_t index = nodes.size();
     const std::string section = yamlnode["proxies"].IsDefined() ? "proxies" : "Proxy";
@@ -1930,6 +1931,61 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         {
 #ifndef NO_WEBGET
             writeLog(0, "Skipping invalid Clash proxy at index " + std::to_string(i) + ": " + e.what(), LOG_LEVEL_WARNING);
+#endif
+        }
+    }
+}
+
+void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
+{
+    const auto section = yamlnode["proxies"].IsDefined() ? "proxies" : "Proxy";
+    if(!yamlnode[section].IsSequence())
+        return;
+    for(const auto &source : yamlnode[section])
+    {
+        try
+        {
+            if(!source.IsMap()) continue;
+            const String type = safe_as<String>(source["type"]);
+            const String name = safe_as<String>(source["name"]);
+            if(!isMihomoProxyType(type) || name.empty()) continue;
+
+            // Retain the legacy model for exports to other clients. A native
+            // protocol may have no top-level endpoint (VPN peers, mesh or
+            // built-in policies), or options the legacy parser cannot model.
+            Node document;
+            document["proxies"].push_back(YAML::Clone(source));
+            std::vector<Proxy> modeled;
+            explodeLegacyClash(document, modeled);
+            if(type == "mieru" && modeled.empty()) continue;
+            Proxy node;
+            if(!modeled.empty())
+                node = std::move(modeled.front());
+            else
+            {
+                node.Type = ProxyType::ClashNative;
+                node.Group = type + "Provider";
+                node.Remark = name;
+                node.Hostname = safe_as<String>(source["server"]);
+                const String port = safe_as<String>(source["port"]);
+                // Port is filter metadata only. Never add a fabricated port
+                // to native YAML or truncate its actual serialized value.
+                if(!port.empty() && port.size() <= 5 &&
+                   port.find_first_not_of("0123456789") == String::npos && to_int(port) <= 65535)
+                    node.Port = to_int(port);
+            }
+            Node retained = YAML::Clone(source);
+            std::vector<Node> visited;
+            preserveClashStringTags(retained, visited);
+            node.ClashYaml = YAML::Dump(retained);
+            node.ClashType = type;
+            node.Id = nodes.size();
+            nodes.emplace_back(std::move(node));
+        }
+        catch(const std::exception &)
+        {
+#ifndef NO_WEBGET
+            writeLog(0, "Skipping malformed native Mihomo proxy", LOG_LEVEL_WARNING);
 #endif
         }
     }
@@ -3248,6 +3304,21 @@ void explodeNetchConf(std::string netch, std::vector<Proxy> &nodes)
 
 int explodeConfContent(const std::string &content, std::vector<Proxy> &nodes)
 {
+    // Detect native YAML/JSON structurally before legacy JSON heuristics such
+    // as a top-level or nested "version" field select the wrong importer.
+    if(regFind(content, R"mihomo("?(Proxy|proxies)"?\s*:)mihomo"))
+    {
+        try
+        {
+            Node document = YAML::Load(content);
+            if(document.IsMap() && (document["proxies"].IsSequence() || document["Proxy"].IsSequence()))
+            {
+                explodeClash(document, nodes);
+                return !nodes.empty();
+            }
+        }
+        catch(const YAML::Exception &) {}
+    }
     ConfType filetype = ConfType::Unknow;
 
     if(strFind(content, "\"version\""))

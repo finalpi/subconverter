@@ -72,8 +72,14 @@ jobs:
           python-version: '3.12'
 
       - name: Test REALITY ML-KEM conversion
+        env:
+          MIHOMO_TEST_BINARY: ${{ runner.temp }}/mihomo-validation
         run: |
           python -m pip install --disable-pip-version-check PyYAML==6.0.2
+          curl --fail --location --retry 3 https://github.com/MetaCubeX/mihomo/releases/download/v1.19.33/mihomo-linux-amd64-compatible-v1.19.33.gz -o "$RUNNER_TEMP/mihomo-validation.gz"
+          echo "386508bfb1c72c43b6a0eda73708ecdce82546581b0ebcb16366c53757c622b6  $RUNNER_TEMP/mihomo-validation.gz" | sha256sum --check
+          gzip --decompress "$RUNNER_TEMP/mihomo-validation.gz"
+          chmod +x "$MIHOMO_TEST_BINARY"
           python scripts/test_reality_mlkem.py --image "${GHCR_IMAGE}:sha-${GITHUB_SHA}"
 
       - name: Push tested images
