@@ -76,6 +76,10 @@ def run_native_cases(endpoint, fixtures, fixture_url):
             node.update({"fast-open": True, "tfo": False})
         node["future-option"] = {"nested": [False, "false", "00123", None, {}, []], "ratio": 1.25}
         expected = copy.deepcopy(node)
+        # Deprecated WS aliases normalize to ws-opts, which is already present
+        # with the same schema-probe values. Alias behavior has dedicated tests.
+        expected.pop("ws-headers", None)
+        expected.pop("ws-path", None)
         for round_number in range(2):
             _, converted = request([node], f"{protocol}-{round_number}", json_input=round_number == 1)
             assert len(converted) == 1, protocol
