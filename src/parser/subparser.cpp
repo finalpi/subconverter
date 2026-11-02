@@ -1249,6 +1249,27 @@ void explodeNetch(std::string netch, Proxy &node)
     }
 }
 
+// yaml-cpp otherwise emits some quoted strings (e.g. "false" or "00123")
+// without quotes. Keep their explicit type across the retained YAML snapshot.
+static void preserveClashStringTags(Node value, std::vector<Node> &visited)
+{
+    for(const Node &previous : visited)
+        if(value.is(previous))
+            return;
+    visited.emplace_back(value);
+    if(value.IsScalar() && value.Tag() == "!")
+        value.SetTag("tag:yaml.org,2002:str");
+    else if(value.IsSequence())
+        for(const auto &child : value)
+            preserveClashStringTags(child, visited);
+    else if(value.IsMap())
+        for(const auto &entry : value)
+        {
+            preserveClashStringTags(entry.first, visited);
+            preserveClashStringTags(entry.second, visited);
+        }
+}
+
 void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
 {
     uint32_t index = nodes.size();
@@ -1259,7 +1280,10 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         {
         Proxy node;
         Node singleproxy = yamlnode[section][i];
-        node.ClashYaml = YAML::Dump(singleproxy);
+        Node retained = YAML::Clone(singleproxy);
+        std::vector<Node> visited;
+        preserveClashStringTags(retained, visited);
+        node.ClashYaml = YAML::Dump(retained);
         std::string proxytype, ps, server, port, cipher, group, password, underlying_proxy; //common
         std::string type = "none", id, aid = "0", net = "tcp", path, host, edge, tls, sni, mode; //vmess/vless
         std::string plugin, pluginopts, pluginopts_mode, pluginopts_host, pluginopts_mux; //ss

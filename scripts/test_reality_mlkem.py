@@ -115,6 +115,12 @@ def run_cases(endpoint, fixtures, fixture_url):
               "numeric-string": "00123", "boolean-string": "false", "null-string": "null",
               "empty-string": "", "empty-list": [], "empty-map": {},
               "items": [False, 7, "007", None, {"deep": ["true", 2]}]}
+    def typed(value):
+        if isinstance(value, dict):
+            return {key: typed(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [typed(item) for item in value]
+        return (type(value).__name__, value)
     enriched = copy.deepcopy(base)
     enriched["future-option"] = future
     enriched["future-list"] = [future, "false", 3]
@@ -124,7 +130,7 @@ def run_cases(endpoint, fixtures, fixture_url):
     enriched["ws-opts"] = {"path": "/native", "headers": {"Host": "example.com", "X-Future": "false"}, "future-ws": future}
     for round_number in range(3):
         enriched = convert(enriched, f"future-round-{round_number}")
-        assert enriched["future-option"] == future
+        assert typed(enriched["future-option"]) == typed(future), repr(enriched["future-option"])
         assert enriched["future-list"] == [future, "false", 3]
         assert enriched["reality-opts"]["future-reality"] == future
         assert enriched["ech-opts"]["future-ech"] == future
