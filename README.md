@@ -2,6 +2,12 @@
 
 Utility to convert between various proxy subscription formats.
 
+Clash/Mihomo REALITY conversion preserves the per-node
+`reality-opts.support-x25519mlkem768` boolean, including an explicit `false`.
+VLESS URI input can pass the same option as a query parameter. An omitted value
+stays omitted, preserving the behavior of existing subscriptions. The option
+is not a top-level Clash template setting.
+
 [![Build Status](https://github.com/metacubex/subconverter/actions/workflows/build.yml/badge.svg)](https://github.com/metacubex/subconverter/actions)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/metacubex/subconverter.svg)](https://github.com/metacubex/subconverter/tags)
 [![GitHub release](https://img.shields.io/github/release/metacubex/subconverter.svg)](https://github.com/metacubex/subconverter/releases)

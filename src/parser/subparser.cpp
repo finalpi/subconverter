@@ -1392,6 +1392,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             if (singleproxy["reality-opts"].IsDefined()) {
                 singleproxy["reality-opts"]["public-key"] >>= public_key;
                 singleproxy["reality-opts"]["short-id"] >>= short_id;
+                node.RealitySupportX25519MLKEM768.set(safe_as<std::string>(singleproxy["reality-opts"]["support-x25519mlkem768"]));
             }
             switch (hash_(net))
             {
@@ -2306,6 +2307,7 @@ void explodeStdVLESS(std::string vless, Proxy &node) {
     node.VlessEncryption = encryption;
     node.XHttpMode = mode;
     applyUriEchOptions(addition, node);
+    node.RealitySupportX25519MLKEM768.set(getUrlArg(addition, "support-x25519mlkem768"));
 }
 
 void explodeVLESS(std::string vless, Proxy &node) {
