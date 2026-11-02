@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise the built converter over HTTP; all credentials are synthetic."""
 import argparse
+import base64
 import copy
 import http.server
 import json
@@ -91,7 +92,7 @@ def run_cases(endpoint, fixtures, fixture_url):
     native_yaml = yaml.safe_dump({"proxies": [native]}).encode()
     legacy_uri = ("vless://" + base["uuid"] + "@example.com:443?" +
                   urllib.parse.urlencode(params) + "#URI-MLKEM").encode()
-    fixtures["/negotiated.yaml"] = lambda ua: native_yaml if ua == "clash.meta" else legacy_uri
+    fixtures["/negotiated.yaml"] = lambda ua: native_yaml if ua == "clash.meta" else base64.b64encode(legacy_uri)
     for label, ua, expected in [("default", None, True), ("explicit-legacy", "legacy-client", MISSING),
                                 ("explicit-native", "clash.meta", True), ("default-again", None, True)]:
         query = {"target": "clash", "url": fixture_url + "/negotiated.yaml",
