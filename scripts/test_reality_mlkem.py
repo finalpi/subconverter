@@ -147,6 +147,10 @@ def run_cases(endpoint, fixtures, fixture_url):
         assert enriched["ws-opts"]["headers"]["X-Future"] == "false"
         count += 1
 
+    full_profile = convert(enriched, "future-full-profile", {"list": "false"})
+    assert typed(full_profile["future-option"]) == typed(future)
+    count += 1
+
     enriched.update({"udp": True, "tfo": True, "skip-cert-verify": True})
     renamed = convert(enriched, "future-overrides", {"rename": "MLKEM-regression@renamed",
                       "udp": "false", "tfo": "false", "scv": "false"})

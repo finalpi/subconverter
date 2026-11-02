@@ -256,7 +256,7 @@ public:
     }
 };
 
-static std::string dumpClashYaml(const YAML::Node &node)
+std::string dumpClashYaml(const YAML::Node &node)
 {
     std::istringstream input(YAML::Dump(node));
     YAML::Parser parser(input);

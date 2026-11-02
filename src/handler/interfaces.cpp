@@ -772,7 +772,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
         {
             YAML::Node yamlnode;
             proxyToClash(nodes, yamlnode, dummy_group, argTarget == "clashr", ext);
-            output_content = YAML::Dump(yamlnode);
+            output_content = dumpClashYaml(yamlnode);
         }
         else
         {
@@ -1208,7 +1208,7 @@ std::string surgeConfToClash(RESPONSE_CALLBACK_ARGS)
 
     response.headers["profile-update-interval"] = std::to_string(global.updateInterval / 3600);
     writeLog(0, "Conversion completed.", LOG_LEVEL_INFO);
-    return YAML::Dump(clash);
+    return dumpClashYaml(clash);
 }
 
 // Merge multiple key-values based on delimiters

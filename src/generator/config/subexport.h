@@ -15,6 +15,8 @@
 #include "utils/yamlcpp_extra.h"
 #include "ruleconvert.h"
 
+std::string dumpClashYaml(const YAML::Node &node);
+
 struct extra_settings
 {
     bool enable_rule_generator = true;
