@@ -72,6 +72,8 @@ struct Proxy
     uint32_t GroupId = 0;
     String Group;
     String Remark;
+    // Original Clash node, retained only for lossless native YAML export.
+    String ClashYaml;
     String Hostname;
     uint16_t Port = 0;
 

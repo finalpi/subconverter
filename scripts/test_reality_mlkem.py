@@ -37,11 +37,13 @@ def run_cases(endpoint, fixtures, fixture_url):
         "reality-opts": {"public-key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "short-id": "aabbccddeeff0011"},
     }
 
-    def convert(node, name):
+    def convert(node, name, options=None):
         key = "/" + name + ".yaml"
         fixtures[key] = yaml.safe_dump({"proxies": [node]}).encode()
-        query = urllib.parse.urlencode({"target": "clash", "url": fixture_url + key,
-                                        "list": "true", "insert": "false", "new_name": "true"})
+        args = {"target": "clash", "url": fixture_url + key,
+                "list": "true", "insert": "false", "new_name": "true"}
+        args.update(options or {})
+        query = urllib.parse.urlencode(args)
         with urllib.request.urlopen(endpoint + "/sub?" + query, timeout=20) as r:
             result = yaml.safe_load(r.read())
         nodes = result.get("proxies", result.get("Proxy", []))
@@ -107,6 +109,62 @@ def run_cases(endpoint, fixtures, fixture_url):
         else:
             assert opts.get(FLAG) is True, f"{label}: native YAML field lost during negotiation/cache"
         count += 1
+    # Future fields require no named parser/exporter changes. Check YAML types,
+    # nested known maps, independent nodes and multiple native round trips.
+    future = {"enabled": False, "count": 0, "ratio": 1.25, "null-value": None,
+              "numeric-string": "00123", "boolean-string": "false", "null-string": "null",
+              "empty-string": "", "empty-list": [], "empty-map": {},
+              "items": [False, 7, "007", None, {"deep": ["true", 2]}]}
+    enriched = copy.deepcopy(base)
+    enriched["future-option"] = future
+    enriched["future-list"] = [future, "false", 3]
+    enriched["reality-opts"]["future-reality"] = future
+    enriched["ech-opts"] = {"enable": False, "future-ech": future}
+    enriched["network"] = "ws"
+    enriched["ws-opts"] = {"path": "/native", "headers": {"Host": "example.com", "X-Future": "false"}, "future-ws": future}
+    for round_number in range(3):
+        enriched = convert(enriched, f"future-round-{round_number}")
+        assert enriched["future-option"] == future
+        assert enriched["future-list"] == [future, "false", 3]
+        assert enriched["reality-opts"]["future-reality"] == future
+        assert enriched["ech-opts"]["future-ech"] == future
+        assert enriched["ech-opts"]["enable"] is False
+        assert enriched["ws-opts"]["future-ws"] == future
+        assert enriched["ws-opts"]["headers"]["X-Future"] == "false"
+        count += 1
+
+    enriched.update({"udp": True, "tfo": True, "skip-cert-verify": True})
+    renamed = convert(enriched, "future-overrides", {"rename": "MLKEM-regression@renamed",
+                      "udp": "false", "tfo": "false", "scv": "false"})
+    assert renamed["name"] == "renamed"
+    assert renamed["udp"] is False and renamed["tfo"] is False and renamed["skip-cert-verify"] is False
+    assert renamed["future-option"] == future
+    count += 1
+
+    for proxy_type, settings in [("ss", {"cipher": "aes-128-gcm", "password": "synthetic"}),
+                                  ("vmess", {"uuid": base["uuid"], "alterId": 0, "cipher": "auto"}),
+                                  ("trojan", {"password": "synthetic", "sni": "example.com"}),
+                                  ("hysteria2", {"password": "synthetic", "sni": "example.com"}),
+                                  ("tuic", {"uuid": base["uuid"], "password": "synthetic"}),
+                                  ("anytls", {"password": "synthetic", "sni": "example.com"})]:
+        node = {"name": "future-" + proxy_type, "type": proxy_type, "server": "example.com", "port": 443,
+                "future-option": future, **settings}
+        result = convert(node, "future-type-" + proxy_type)
+        assert result["type"] == proxy_type and result["future-option"] == future
+        assert "future-reality" not in result.get("reality-opts", {}), "fields leaked between nodes"
+        count += 1
+
+    # Existing normalizations and legacy transport output must remain effective.
+    legacy = copy.deepcopy(base)
+    legacy.update({"network": "ws", "ws-path": "/legacy", "ws-headers": {"Host": "example.com"},
+                   "underlying-proxy": "DIRECT", "fast-open": True})
+    normalized = convert(legacy, "future-normalized", {"tfo": "false"})
+    assert normalized["ws-opts"]["path"] == "/legacy"
+    assert normalized["dialer-proxy"] == "DIRECT" and normalized["tfo"] is False
+    assert not any(k in normalized for k in ["ws-path", "ws-headers", "underlying-proxy", "fast-open"])
+    deprecated = convert(normalized, "future-deprecated", {"new_name": "false"})
+    assert deprecated["ws-path"] == "/legacy" and "ws-opts" not in deprecated
+    count += 2
     print(json.dumps({"result": "REALITY_MLKEM_REGRESSION_PASSED", "checks": count}), flush=True)
 
 

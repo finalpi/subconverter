@@ -1259,6 +1259,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         {
         Proxy node;
         Node singleproxy = yamlnode[section][i];
+        node.ClashYaml = YAML::Dump(singleproxy);
         std::string proxytype, ps, server, port, cipher, group, password, underlying_proxy; //common
         std::string type = "none", id, aid = "0", net = "tcp", path, host, edge, tls, sni, mode; //vmess/vless
         std::string plugin, pluginopts, pluginopts_mode, pluginopts_host, pluginopts_mux; //ss

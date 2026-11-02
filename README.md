@@ -13,6 +13,13 @@ by default, so services such as Sub-Store return native YAML with these fields
 instead of a lossy URI list. An explicit `ua` query parameter takes precedence.
 Download caches are separated by User-Agent to keep negotiated formats apart.
 
+Native Clash/Mihomo YAML nodes also retain fields not emitted by the converter,
+including nested maps, sequences, booleans and nulls. Generated fields and
+explicit conversion options take precedence; deprecated aliases are normalized.
+This passthrough applies to supported proxy types exported back to Clash YAML.
+It does not invent missing fields, translate unknown URI parameters or make an
+older client understand new options. Unknown protocol types still require a parser.
+
 [![Build Status](https://github.com/metacubex/subconverter/actions/workflows/build.yml/badge.svg)](https://github.com/metacubex/subconverter/actions)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/metacubex/subconverter.svg)](https://github.com/metacubex/subconverter/tags)
 [![GitHub release](https://img.shields.io/github/release/metacubex/subconverter.svg)](https://github.com/metacubex/subconverter/releases)

@@ -230,6 +230,25 @@ void groupGenerate(const std::string &rule, std::vector<Proxy> &nodelist, string
     }
 }
 
+// Keep unmodeled native fields while giving generated values (including false,
+// null and sequences) precedence. Maps merge recursively; sequences are atomic.
+static void mergeMissingClashFields(YAML::Node output, const YAML::Node &source)
+{
+    if(!output.IsMap() || !source.IsMap())
+        return;
+    for(const auto &entry : source)
+    {
+        if(!entry.first.IsScalar())
+            continue;
+        const std::string key = entry.first.as<std::string>();
+        const YAML::Node current = static_cast<const YAML::Node &>(output)[key];
+        if(!current.IsDefined())
+            output[key] = YAML::Clone(entry.second);
+        else if(current.IsMap() && entry.second.IsMap())
+            mergeMissingClashFields(output[key], entry.second);
+    }
+}
+
 void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGroupConfigs &extra_proxy_group, bool clashR, extra_settings &ext)
 {
     YAML::Node proxies, original_groups;
@@ -746,8 +765,8 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         // UDP is not supported yet in clash using snell
         // sees in https://dreamacro.github.io/clash/configuration/outbound.html#snell
         // Output UDP field when explicitly provided (true or false)
-        if(!x.UDP.is_undef() && x.Type != ProxyType::Snell)
-            singleproxy["udp"] = x.UDP.get();
+        if(!udp.is_undef() && x.Type != ProxyType::Snell)
+            singleproxy["udp"] = udp.get();
         if(!tfo.is_undef())
             singleproxy["tfo"] = tfo.get();
         if(!x.ClientFingerprint.empty())
@@ -758,6 +777,26 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             singleproxy["ech-opts"]["config"] = x.EchConfig;
         if(!x.EchQueryServerName.empty())
             singleproxy["ech-opts"]["query-server-name"] = x.EchQueryServerName;
+        if(!x.ClashYaml.empty())
+        {
+            YAML::Node original = YAML::Load(x.ClashYaml);
+            // Do not revive aliases normalized by the exporter or deliberately
+            // unsupported legacy fields.
+            original.remove("underlying-proxy");
+            original.remove("heartbeat_interval");
+            if(singleproxy["tfo"].IsDefined() && !singleproxy["fast-open"].IsDefined())
+                original.remove("fast-open");
+            if(ext.clash_new_field_name)
+            {
+                original.remove("ws-path");
+                original.remove("ws-headers");
+            }
+            else
+                original.remove("ws-opts");
+            if(x.Type == ProxyType::Snell)
+                original.remove("udp");
+            mergeMissingClashFields(singleproxy, original);
+        }
         if(proxy_block)
             singleproxy.SetStyle(YAML::EmitterStyle::Block);
         else
