@@ -121,8 +121,8 @@ def main():
         name = "subconverter-mlkem-" + uuid.uuid4().hex[:12]
         try:
             subprocess.run([args.engine, "run", "--detach", "--rm", "--name", name,
-                            "--network", "host", "--volume", scratch + ":/regression",
-                            "--workdir", "/regression", args.image], check=True, stdout=subprocess.DEVNULL)
+                            "--network", "host", "--volume", str(Path(scratch, "pref.ini")) + ":/base/pref.ini:ro",
+                            args.image], check=True, stdout=subprocess.DEVNULL)
             deadline = time.monotonic() + 25
             while True:
                 try:
