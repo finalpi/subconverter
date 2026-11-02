@@ -825,7 +825,7 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         if(!x.ClashYaml.empty())
         {
             YAML::Node original = YAML::Load(x.ClashYaml);
-            if(x.Type == ProxyType::Mieru && original["port-range"].IsDefined())
+            if(x.Type == ProxyType::Mieru && !safe_as<std::string>(original["port-range"]).empty())
                 singleproxy.remove("port");
             // Do not revive aliases normalized by the exporter or deliberately
             // unsupported legacy fields.

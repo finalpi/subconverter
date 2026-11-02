@@ -209,6 +209,10 @@ def run_cases(endpoint, fixtures, fixture_url):
                             ("bad-range", {"port": None, "port-range": "0-65536"})]:
         convert(dict(mieru, **settings), "mieru-invalid-" + label, expected_count=0)
         count += 1
+    for label, value in [("null", None), ("empty", "")]:
+        node = convert(dict(mieru, **{"port-range": value}), "mieru-empty-range-" + label)
+        assert node["port"] == 8443, node
+        count += 1
     print(json.dumps({"result": "REALITY_MLKEM_REGRESSION_PASSED", "checks": count}), flush=True)
 
 
