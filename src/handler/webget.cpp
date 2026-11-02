@@ -311,7 +311,11 @@ std::string webGet(const std::string &url, const std::string &proxy, unsigned in
     if(cache_ttl > 0)
     {
         md("cache");
-        const std::string url_md5 = getMD5(url);
+        // Subscription servers can return different formats for the same URL.
+        std::string cache_user_agent = user_agent_str;
+        if(request_headers && request_headers->contains("User-Agent"))
+            cache_user_agent = request_headers->at("User-Agent");
+        const std::string url_md5 = getMD5(url + "\nUser-Agent:" + cache_user_agent);
         const std::string path = "cache/" + url_md5, path_header = path + "_header";
         struct stat result {};
         if(stat(path.data(), &result) == 0) // cache exist

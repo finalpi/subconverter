@@ -335,6 +335,9 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
     std::string argDeviceID = getUrlArg(argument, "dev_id"), argFilename = getUrlArg(argument, "filename"), argUpdateInterval = getUrlArg(argument, "interval"), argUpdateStrict = getUrlArg(argument, "strict");
     std::string argRenames = getUrlArg(argument, "rename"), argFilterScript = getUrlArg(argument, "filter_script");
     std::string argUserAgent = getUrlArg(argument, "ua");
+    // Ask negotiated subscriptions for native YAML instead of a lossy URI list.
+    if(argUserAgent.empty() && (argTarget == "clash" || argTarget == "clashr"))
+        argUserAgent = "clash.meta";
 
     /// switches with default value
     tribool argUpload = getUrlArg(argument, "upload"), argEmoji = getUrlArg(argument, "emoji"), argAddEmoji = getUrlArg(argument, "add_emoji"), argRemoveEmoji = getUrlArg(argument, "remove_emoji");

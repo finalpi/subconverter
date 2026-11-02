@@ -8,6 +8,11 @@ VLESS URI input can pass the same option as a query parameter. An omitted value
 stays omitted, preserving the behavior of existing subscriptions. The option
 is not a top-level Clash template setting.
 
+Clash conversion requests upstream subscriptions with `User-Agent: clash.meta`
+by default, so services such as Sub-Store return native YAML with these fields
+instead of a lossy URI list. An explicit `ua` query parameter takes precedence.
+Download caches are separated by User-Agent to keep negotiated formats apart.
+
 [![Build Status](https://github.com/metacubex/subconverter/actions/workflows/build.yml/badge.svg)](https://github.com/metacubex/subconverter/actions)
 [![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/metacubex/subconverter.svg)](https://github.com/metacubex/subconverter/tags)
 [![GitHub release](https://img.shields.io/github/release/metacubex/subconverter.svg)](https://github.com/metacubex/subconverter/releases)

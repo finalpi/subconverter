@@ -85,6 +85,27 @@ def run_cases(endpoint, fixtures, fixture_url):
         else:
             assert type(opts.get(FLAG)) is bool and opts[FLAG] is (value == "true")
         count += 1
+    # Sub-Store-style negotiation: generic clients receive a URI without ML-KEM.
+    native = copy.deepcopy(base)
+    native["reality-opts"][FLAG] = True
+    native_yaml = yaml.safe_dump({"proxies": [native]}).encode()
+    legacy_uri = ("vless://" + base["uuid"] + "@example.com:443?" +
+                  urllib.parse.urlencode(params) + "#URI-MLKEM").encode()
+    fixtures["/negotiated.yaml"] = lambda ua: native_yaml if ua == "clash.meta" else legacy_uri
+    for label, ua, expected in [("default", None, True), ("explicit-legacy", "legacy-client", MISSING),
+                                ("explicit-native", "clash.meta", True), ("default-again", None, True)]:
+        query = {"target": "clash", "url": fixture_url + "/negotiated.yaml",
+                 "list": "true", "insert": "false", "new_name": "true"}
+        if ua is not None:
+            query["ua"] = ua
+        with urllib.request.urlopen(endpoint + "/sub?" + urllib.parse.urlencode(query), timeout=20) as r:
+            result = yaml.safe_load(r.read())
+        opts = result["proxies"][0]["reality-opts"]
+        if expected is MISSING:
+            assert FLAG not in opts, f"{label}: explicit UA must not reuse the native YAML cache"
+        else:
+            assert opts.get(FLAG) is True, f"{label}: native YAML field lost during negotiation/cache"
+        count += 1
     print(json.dumps({"result": "REALITY_MLKEM_REGRESSION_PASSED", "checks": count}), flush=True)
 
 
@@ -101,6 +122,8 @@ def main():
             if body is None:
                 self.send_error(404)
                 return
+            if callable(body):
+                body = body(self.headers.get("User-Agent", ""))
             self.send_response(200)
             self.send_header("Content-Type", "text/yaml")
             self.send_header("Content-Length", str(len(body)))
@@ -115,7 +138,8 @@ def main():
         endpoint = f"http://127.0.0.1:{port}"
         Path(scratch, "pref.ini").write_text(
             "[common]\napi_mode=false\nenable_insert=false\nbase_path=/base\nclash_rule_base=/base/base/clash.yml\n"
-            f"[server]\nlisten=127.0.0.1\nport={port}\n", encoding="utf-8")
+            f"[server]\nlisten=127.0.0.1\nport={port}\n"
+            "[advanced]\nenable_cache=true\ncache_subscription=300\n", encoding="utf-8")
         server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         threading.Thread(target=server.serve_forever, daemon=True).start()
         name = "subconverter-mlkem-" + uuid.uuid4().hex[:12]
