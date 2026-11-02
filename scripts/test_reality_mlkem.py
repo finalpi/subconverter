@@ -37,18 +37,26 @@ def run_cases(endpoint, fixtures, fixture_url):
         "reality-opts": {"public-key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "short-id": "aabbccddeeff0011"},
     }
 
-    def convert(node, name, options=None):
+    def convert(node, name, options=None, expected_count=1):
         key = "/" + name + ".yaml"
         fixtures[key] = yaml.safe_dump({"proxies": [node]}).encode()
         args = {"target": "clash", "url": fixture_url + key,
                 "list": "true", "insert": "false", "new_name": "true"}
         args.update(options or {})
         query = urllib.parse.urlencode(args)
-        with urllib.request.urlopen(endpoint + "/sub?" + query, timeout=20) as r:
-            result = yaml.safe_load(r.read())
+        try:
+            with urllib.request.urlopen(endpoint + "/sub?" + query, timeout=20) as r:
+                body = r.read()
+        except urllib.error.HTTPError as error:
+            body = error.read()
+            assert expected_count == 0 and error.code == 400 and (
+                b"valid node info" in body or b"No nodes were found" in body), (name, body)
+            return None
+        assert b"!!str" not in body and b"!<tag:yaml.org,2002:str>" not in body and b"!<str>" not in body, name
+        result = yaml.safe_load(body)
         nodes = result.get("proxies", result.get("Proxy", []))
-        assert len(nodes) == 1, f"{name}: expected one exported proxy"
-        return nodes[0]
+        assert len(nodes) == expected_count, f"{name}: expected {expected_count} exported proxies"
+        return nodes[0] if expected_count else None
 
     count = 0
     for label, value in [("true", True), ("false", False), ("unset", MISSING)]:
@@ -171,6 +179,36 @@ def run_cases(endpoint, fixtures, fixture_url):
     deprecated = convert(normalized, "future-deprecated", {"new_name": "false"})
     assert deprecated["ws-path"] == "/legacy" and "ws-opts" not in deprecated
     count += 2
+
+    # Mieru is a native Mihomo protocol, including range-only endpoints.
+    mieru = {"name": "Mieru-regression", "type": "mieru", "server": "example.com", "port": 8443,
+             "transport": "TCP", "username": "false", "password": "00123", "multiplexing": "LOW",
+             "handshake-mode": "HANDSHAKE_NO_WAIT", "traffic-pattern": "synthetic",
+             "udp": True, "future-option": future}
+    for transport in ["TCP", "UDP"]:
+        node = dict(mieru, transport=transport)
+        for round_number in range(2):
+            node = convert(node, f"mieru-{transport}-{round_number}")
+            assert typed(node) == typed(dict(mieru, transport=transport)), node
+            count += 1
+    ranged = dict(mieru)
+    ranged.pop("port")
+    ranged["port-range"] = "8443-8449"
+    for round_number in range(2):
+        result = convert(ranged, f"mieru-range-{round_number}")
+        assert typed(result) == typed(ranged) and "port" not in result
+        ranged = result
+        count += 1
+    overridden = convert(mieru, "mieru-overrides", {"rename": "Mieru-regression@renamed", "udp": "false"})
+    assert overridden["name"] == "renamed" and overridden["udp"] is False
+    assert overridden["password"] == "00123" and overridden["username"] == "false"
+    count += 1
+    for label, settings in [("both-ports", {"port-range": "8443-8449"}), ("missing-user", {"username": ""}),
+                            ("bad-transport", {"transport": "QUIC"}), ("bad-port", {"port": 65536}),
+                            ("reverse-range", {"port": None, "port-range": "8449-8443"}),
+                            ("bad-range", {"port": None, "port-range": "0-65536"})]:
+        convert(dict(mieru, **settings), "mieru-invalid-" + label, expected_count=0)
+        count += 1
     print(json.dumps({"result": "REALITY_MLKEM_REGRESSION_PASSED", "checks": count}), flush=True)
 
 

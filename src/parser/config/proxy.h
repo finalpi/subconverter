@@ -25,7 +25,8 @@ enum class ProxyType
     Hysteria,
     Hysteria2,
     TUIC,
-    AnyTLS
+    AnyTLS,
+    Mieru
 };
 
 inline String getProxyTypeName(ProxyType type)
@@ -60,6 +61,8 @@ inline String getProxyTypeName(ProxyType type)
         return "TUIC";
     case ProxyType::AnyTLS:
         return "AnyTLS";
+    case ProxyType::Mieru:
+        return "Mieru";
     default:
         return "Unknown";
     }
@@ -242,5 +245,6 @@ struct Proxy
 #define HYSTERIA2_DEFAULT_GROUP "Hysteria2Provider"
 #define TUIC_DEFAULT_GROUP "TUICProvider"
 #define ANYTLS_DEFAULT_GROUP "AnyTLSProvider"
+#define MIERU_DEFAULT_GROUP "MieruProvider"
 
 #endif // PROXY_H_INCLUDED

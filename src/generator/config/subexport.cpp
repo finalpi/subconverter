@@ -3,6 +3,9 @@
 #include <numeric>
 #include <cmath>
 #include <climits>
+#include <sstream>
+#include <yaml-cpp/emitfromevents.h>
+#include <yaml-cpp/parser.h>
 
 #include "config/regmatch.h"
 #include "generator/config/subexport.h"
@@ -129,7 +132,8 @@ bool applyMatcher(const std::string &rule, std::string &real_rule, const Proxy &
         {ProxyType::Hysteria,     "HYSTERIA"},
         {ProxyType::Hysteria2,    "HYSTERIA2"},
         {ProxyType::TUIC,    "TUIC"},
-        {ProxyType::AnyTLS,    "ANYTLS"}
+        {ProxyType::AnyTLS,    "ANYTLS"},
+        {ProxyType::Mieru,     "MIERU"}
     };
     if(startsWith(rule, "!!GROUP="))
     {
@@ -228,6 +232,40 @@ void groupGenerate(const std::string &rule, std::vector<Proxy> &nodelist, string
                 filtered_nodelist.emplace_back(x.Remark);
         }
     }
+}
+
+// Retained YAML uses explicit string tags internally to survive yaml-cpp
+// round trips. Emit those scalars with quotes instead of exposing the tags to
+// clients. Parser events preserve anchors, aliases and collection styles.
+class ClashYamlEmitter : public YAML::EmitFromEvents
+{
+    YAML::Emitter &output;
+public:
+    explicit ClashYamlEmitter(YAML::Emitter &emitter) : YAML::EmitFromEvents(emitter), output(emitter) {}
+
+    void OnScalar(const YAML::Mark &mark, const std::string &tag,
+                  YAML::anchor_t anchor, const std::string &value) override
+    {
+        if(tag == "tag:yaml.org,2002:str" || tag == "!" || tag == "str" || tag == "!!str")
+        {
+            output << YAML::DoubleQuoted;
+            YAML::EmitFromEvents::OnScalar(mark, "", anchor, value);
+        }
+        else
+            YAML::EmitFromEvents::OnScalar(mark, tag, anchor, value);
+    }
+};
+
+static std::string dumpClashYaml(const YAML::Node &node)
+{
+    std::istringstream input(YAML::Dump(node));
+    YAML::Parser parser(input);
+    YAML::Emitter output;
+    ClashYamlEmitter handler(output);
+    parser.HandleNextDocument(handler);
+    if(!output.good())
+        throw std::runtime_error(output.GetLastError());
+    return output.c_str();
 }
 
 // Keep unmodeled native fields while giving generated values (including false,
@@ -621,6 +659,13 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             if (!scv.is_undef())
                 singleproxy["skip-cert-verify"] = scv.get();
             break;
+        case ProxyType::Mieru:
+            singleproxy["type"] = "mieru";
+            singleproxy["username"] = x.Username;
+            singleproxy["password"] = x.Password;
+            singleproxy["username"].SetTag("tag:yaml.org,2002:str");
+            singleproxy["password"].SetTag("tag:yaml.org,2002:str");
+            break;
         case ProxyType::AnyTLS:
             singleproxy["type"] = "anytls";
             if (!x.Password.empty())
@@ -780,6 +825,8 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         if(!x.ClashYaml.empty())
         {
             YAML::Node original = YAML::Load(x.ClashYaml);
+            if(x.Type == ProxyType::Mieru && original["port-range"].IsDefined())
+                singleproxy.remove("port");
             // Do not revive aliases normalized by the exporter or deliberately
             // unsupported legacy fields.
             original.remove("underlying-proxy");
@@ -918,16 +965,16 @@ std::string proxyToClash(std::vector<Proxy> &nodes, const std::string &base_conf
     proxyToClash(nodes, yamlnode, extra_proxy_group, clashR, ext);
 
     if(ext.nodelist)
-        return YAML::Dump(yamlnode);
+        return dumpClashYaml(yamlnode);
 
     /*
     if(ext.enable_rule_generator)
         rulesetToClash(yamlnode, ruleset_content_array, ext.overwrite_original_rules, ext.clash_new_field_name);
 
-    return YAML::Dump(yamlnode);
+    return dumpClashYaml(yamlnode);
     */
     if(!ext.enable_rule_generator)
-        return YAML::Dump(yamlnode);
+        return dumpClashYaml(yamlnode);
 
     if(!ext.managed_config_prefix.empty() || ext.clash_script)
     {
@@ -940,13 +987,13 @@ std::string proxyToClash(std::vector<Proxy> &nodes, const std::string &base_conf
         }
 
         renderClashScript(yamlnode, ruleset_content_array, ext.managed_config_prefix, ext.clash_script, ext.overwrite_original_rules, ext.clash_classical_ruleset);
-        return YAML::Dump(yamlnode);
+        return dumpClashYaml(yamlnode);
     }
 
     std::string output_content = rulesetToClashStr(yamlnode, ruleset_content_array, ext.overwrite_original_rules, ext.clash_new_field_name);
-    output_content.insert(0, YAML::Dump(yamlnode));
+    output_content.insert(0, dumpClashYaml(yamlnode));
     //rulesetToClash(yamlnode, ruleset_content_array, ext.overwrite_original_rules, ext.clash_new_field_name);
-    //std::string output_content = YAML::Dump(yamlnode);
+    //std::string output_content = dumpClashYaml(yamlnode);
 
     return output_content;
 }

@@ -1309,6 +1309,30 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
         singleproxy["server"] >>= server;
         singleproxy["port"] >>= port;
 
+        if(proxytype == "mieru")
+        {
+            const std::string range = safe_as<std::string>(singleproxy["port-range"]);
+            // Mihomo accepts either port or port-range. Keep the first port as
+            // internal metadata; native export restores the original range.
+            if(!range.empty())
+            {
+                if(!port.empty() || range.find_first_not_of("0123456789-") != std::string::npos)
+                    continue;
+                const auto dash = range.find('-');
+                if(dash == std::string::npos || dash == 0 || dash + 1 == range.size() ||
+                   range.find('-', dash + 1) != std::string::npos)
+                    continue;
+                const int first = to_int(range.substr(0, dash), 0);
+                const int last = to_int(range.substr(dash + 1), 0);
+                if(first < 1 || last > 65535 || first > last)
+                    continue;
+                port = std::to_string(first);
+            }
+            else if(port.empty() || port.find_first_not_of("0123456789") != std::string::npos ||
+                    to_int(port, 0) < 1 || to_int(port, 0) > 65535)
+                continue;
+        }
+
         underlying_proxy.clear();
         // Use 'dialer-proxy' or 'underlying-proxy' to set underlying proxy
         if (singleproxy["dialer-proxy"].IsDefined())
@@ -1849,6 +1873,17 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             // max-datagram-frame-size - only assign if explicitly provided
             if(singleproxy["max-datagram-frame-size"].IsDefined())
                 node.MaxDatagramFrameSize = to_int(safe_as<std::string>(singleproxy["max-datagram-frame-size"]));
+            break;
+        case "mieru"_hash:
+            singleproxy["username"] >>= user;
+            singleproxy["password"] >>= password;
+            singleproxy["transport"] >>= net;
+            if(server.empty() || user.empty() || password.empty() || (net != "TCP" && net != "UDP"))
+                continue;
+            commonConstruct(node, ProxyType::Mieru, MIERU_DEFAULT_GROUP, ps, server, port,
+                            udp, tfo, scv, tribool(), underlying_proxy);
+            node.Username = user;
+            node.Password = password;
             break;
         case "anytls"_hash: {
             group = ANYTLS_DEFAULT_GROUP;
